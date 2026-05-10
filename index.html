@@ -539,6 +539,18 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
 .cycle-done-sub{font-size:13px;color:var(--ink2);font-weight:300;margin-bottom:16px;}
 .cycle-done-btn{background:linear-gradient(135deg,var(--olive),var(--olive2));border:none;border-radius:var(--r);padding:13px 28px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;color:#fff;cursor:pointer;}
 
+
+/* ── EXERCISE FORM PHOTO IN INFO MODAL ── */
+.img-ph{background:var(--ivory);border:1.5px dashed var(--border2);border-radius:10px;padding:18px 18px 16px;text-align:center;margin-bottom:14px;cursor:pointer;}
+.ex-add-btn{display:inline-flex;align-items:center;gap:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--ink2);cursor:pointer;}
+.ex-add-btn span{font-size:20px;}
+.ex-add-hint{font-size:11px;color:var(--ink3);margin-top:5px;line-height:1.4;}
+.ex-photo-wrap{margin-bottom:14px;border-radius:10px;overflow:hidden;background:var(--ivory);}
+.ex-photo-img{width:100%;display:block;max-height:340px;object-fit:contain;border-radius:10px 10px 0 0;background:#000;}
+.ex-photo-actions{display:flex;align-items:center;gap:10px;padding:8px 12px;}
+.ex-photo-replace{background:var(--ivory);border:1.5px solid var(--border);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:500;font-family:'Outfit',sans-serif;color:var(--ink2);cursor:pointer;display:inline-block;}
+.ex-photo-remove{background:none;border:none;font-size:11px;color:var(--ink3);cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:underline;padding:0;}
+.ex-file-in{position:fixed;opacity:0;width:1px;height:1px;pointer-events:none;}
 /* ── SETTINGS ── */
 .settings-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
 .settings-item{display:flex;align-items:flex-start;padding:16px;border-bottom:1px solid var(--border);}
@@ -859,6 +871,27 @@ const CELEB_MSGS = {
     "Sweet pea with the progressive overload in the big '26!",
     "Pushing those numbers up, baby!",
     "Getting those lifts up. Pingus on top!!!",
+    "Weight went up? Oh, so Pingus is getting dangerously strong.",
+    "Bigger dumbbells, bigger dubs.",
+    "Stronger than last time. That's not a theory, that's literally in the chart, go check it!",
+    "Weight increase detected. Baby P has entered the success zone of no return.",
+    "Okayyyy, heavier weight. I see you, sweet pea.",
+    "Progressive overload? In this economy? Incredible.",
+    "The dumbbells got heavier and you still handled business.",
+    "Pingus loading... strength update installed.",
+    "New weight, same goated Pingus.",
+    "That's a weight PR, baby. We take those every time. LFG BABYYYY",
+    "WEIGHTS UP BABYY GOOD SHITTT.",
+    "So proud that you stay challenging yourself throughout this!!!",
+    "Strength gains have been spotted in the wild. Nat Geo scientists are calling it Pingus. No one knows where that name originated, but it feels right.",
+    "Heavier today, stronger tomorrow. That's science, probably.",
+    "Baby P said 'more weight please,' and ate that shit up, yes ma'am.",
+    "Good lifts!!! Your ancestors wrestled angels and killed giants, you are born of strength.",
+    "You really said 'let's make this harder' and then did it anyway. Iconic.",
+    "Olympus has reviewed the lift and upgraded your status. Get it? Cus it's Greek themed?",
+    "Weight PR? Everybody stay calm. Actually no, freak out. WOOOOOOO",
+    "That lift just leveled up, and so did you. Baby P.",
+    "Can you tell I am running out of ideas of what to write for these? I love you, good work!!",
   ],
   // B. Reps increased (no weight PR)
   repsUp: [
@@ -867,6 +900,18 @@ const CELEB_MSGS = {
     "Same weight, more reps. Goated.",
     "At this rate, those handstand push-ups are on the horizon!",
     "Small rep increases turn into big changes over time.",
+    "More reps in the bank, litewally so awesome, baby P.",
+    "Stacking that weight up! Check your total weight moved, I bet it's pwetty fweakin high!",
+    "One more rep today, way more beast tomorrow B > ).",
+    "Hello, yes Mr. President, we have identified the alpha threat. It goes by... Pingus.",
+    "EASSSSSYYYYYYYYY LFFGGGGGGG",
+    "Rep PR? We are so back.",
+    "Did you know that you are the best?",
+    "You're stacking reps like your dad stacking chips, baby.",
+    "Same dumbbells, stronger Pingolingus.",
+    "That rep range is starting to fear you.",
+    "More reps, I see. By my calculations, that must mean you're goated.",
+    "The weight stayed the same, but you did not.",
   ],
   // C. Matched previous performance
   matched: [
@@ -875,6 +920,18 @@ const CELEB_MSGS = {
     "Keep that rhythm going!",
     "Same numbers, better form, stronger habits.",
     "Not every day has to be a PR. You still did the work like a champ, baby P.",
+    "You matched last time. That's consistency babyyyy.",
+    "Same numbers, but check your total weight moved. That shit is high!",
+    "You held steady. That matters more than it feels like. I promise, those are the days that count.",
+    "No PR needed. You put in the work!",
+    "You kept the promise to yourself today. That's wassup. You prolly also just feel bad cus I went through all this effort to make you an app, so now you have to do this. Regardless, amazing.",
+    "Queen Pingaling maintaining the same decorum as usual. Very impressive.",
+    "Siri, play 'Hold the Line'... No rep or weight changes, but you hold the line! Ta na na na, Pingus is always on time. Pa na na na.",
+    "Some days are for building the base. This was one of them. Expertly done.",
+    "You showed up, moved well, and kept the rhythm alive.",
+    "Good, fuckin, work. This is how consistency compounds.",
+    "The numbers held steady, and so did you.",
+    "Same workout, stronger habit, beastly Pingus. Math checks out.",
   ],
   // D. Performance dropped slightly
   dropped: [
@@ -883,6 +940,21 @@ const CELEB_MSGS = {
     "Progress is not perfectly straight, it's gay! Just like you lol.",
     "Perfection is the enemy of progress, and you're still doing it perfect and progressing. Unbelievable.",
     "A lower-energy day still keeps the chain alive and lets you stay rested for tomorrow.",
+    "Slight dip, still a dub. You showed up.",
+    "Some days are maintenance days, and maintenance matters.",
+    "The numbers were a little lower, but the habit stayed strong.",
+    "Not every workout is a movie. You still got that shit done.",
+    "Lower numbers today, still beast behavior.",
+    "Your body said 'girl, we are managing resources,' and honestly, valid.",
+    "A little drop does not erase the work. It still adds to the flood, baby!",
+    "Good job pushing yourself, sometimes the body needs a little more rest.",
+    "You did the workout on a not-perfect day. That's super very much impressive.",
+    "No panic. The graph wiggles. Pingus continues.",
+    "Tiny dip, giant consistency.",
+    "Even the strongest Pingus must sometimes recharge.",
+    "The numbers blinked, but you didn't fold.",
+    "This is one of those boring-but-important days. Proud of you.",
+    "You kept the chain alive, and that's the win today. What are you gonna watch during cardio?",
   ],
   // E. Minimum version
   minimum: [
@@ -891,6 +963,21 @@ const CELEB_MSGS = {
     "Not every day needs to be perfect. You still showed up. Incredible.",
     "Small workout, real discipline. You're so goated.",
     "Minimum, shminimum. Good fuckin' work, P.",
+    "Minimum version, maximum respect.",
+    "You did the backup plan instead of disappearing. That's a huge win.",
+    "Tiny workout, massive habit protection.",
+    "Minimum version still moves the story forward.",
+    "You kept the streak breathing, baby P.",
+    "Not the full thing, still very much an important thing.",
+    "A little workout is infinitely better than no workout.",
+    "You chose the small door instead of leaving the building. Very wise Pingus.",
+    "Minimum mode activated. Habit preserved.",
+    "This is exactly why minimum version exists. You used the system right.",
+    "You didn't quit, you adapted. Goated.",
+    "Small day, strong choice.",
+    "Minimum version? More like strategic queen behavior.",
+    "You protected future-you today.",
+    "The chain lives on. Pingus prevails.",
   ],
   // F. Returning after missing days
   returning: [
@@ -899,6 +986,21 @@ const CELEB_MSGS = {
     "The streak restarts, perhaps, but the progress doesn't disappear.",
     "Proud of you for comin' back to it, P.",
     "Baby come back, you can blame it all on me... oh, you're back! Awesome!!!",
+    "And we're back, baby.",
+    "Pingus has re-entered the chat.",
+    "Return of the queen.",
+    "You came back. That's the whole game.",
+    "A little break happened, and then you came back. Perfect.",
+    "Back in the saddle, except the saddle is dumbbells and mild suffering.",
+    "This is the part that matters: returning.",
+    "You didn't disappear forever. Huge.",
+    "The comeback episode begins now.",
+    "No shame, no drama. Just back to work.",
+    "The app missed you. I missed you. The dumbbells missed you.",
+    "Breaks happen. Pingus returns.",
+    "That's a comeback rep for the soul.",
+    "You picked it back up, and I'm proud of you.",
+    "The streak may reset, but the habit is still alive.",
   ],
   // G. Full 6-day cycle complete
   fullCycle: [
@@ -907,6 +1009,21 @@ const CELEB_MSGS = {
     "That's a full week of work in the bank. That's some Roth IRA shit, man. Good stuff!",
     "Cycle complete. Strong, consistent, proud. I love my baby sweetie Pingus so freakin' much.",
     "You finished the whole rotation. That's Olympian behavior. Get it, cus I themed the app on Mount Olympus vibes, hehe.",
+    "Full cycle complete. Pingus has completed the sacred rotation.",
+    "Six days done. The dumbbells are filing a complaint.",
+    "That's a whole rotation, baby. Certified jacked Pingo behavior.",
+    "Full cycle, you're nuts!!!",
+    "Six workouts in the bank. Compound interest, but for muscles.",
+    "Full cycle done. The Mount Olympus committee is literally shaking.",
+    "That was not a workout. That was a campaign, god damn, six days???",
+    "Day 1 through Day 6 complete. The prophecy continues.",
+    "Six-day sweep. Are you kidding me?",
+    "Full rotation finished. Strong, consistent, extremely Pingus.",
+    "The cycle is complete. The gains council has approved your application.",
+    "Six workouts down. That's not motivation, that's discipline.",
+    "You finished the whole thing. I'm so proud of you it's annoying.",
+    "The week has been conquered. Please accept this imaginary olive crown.",
+    "Full cycle complete. Next cycle, same queen, stronger numbers.",
   ],
   // H. Generic fallback
   generic: [
@@ -915,19 +1032,40 @@ const CELEB_MSGS = {
     "You showed up for yourself today. Big dubs all around.",
     "That effort counts.",
     "So freakin' beast, Pingus.",
+    "Workout complete. Pingus did that thang.",
+    "Another one done. Proud of you, sweet pea.",
+    "You showed up, and that is very much the point.",
+    "Workout logged. Gains loading.",
+    "That's another brick in the tiny little muscle castle; the entrance is your belly button. I am a noble knight returning home through the main entrance. You must let me in!",
+    "Good work today, baby P. For real.",
+    "Done and dusted. I crown you Queen of the Aspen Apartment Complex Dumbbells and Treadmills behavior.",
+    "Huge dubs for my baby P this evening. Everyone clap..... I said clap!!!! *clap* *clap* *clap* *clap* *clap*.",
+    "The app has systematically reviewed your effort and declared it goated.",
+    "One more day of choosing yourself. Doesn't get cooler than that.",
+    "Pingus clocked in and handled business, as per usge.",
+    "That effort has officially been submitted to DingoLingoAnalytics; they will come back to you in 10–20 days with a report on how much I love you.",
   ],
 };
 
 function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-// Non-repeating rand — avoids showing the same message back-to-back
+// Windowed anti-repeat: avoids last 5 used messages (3 for smaller pools)
+// Tracks a per-category recent-use list in localStorage
 function randNR(arr, key){
   if(!arr||!arr.length)return'';
   if(arr.length===1)return arr[0];
-  const last=localStorage.getItem('form_msg_'+key);
-  const pool=arr.filter(m=>m!==last);
-  const chosen=(pool.length?pool:arr)[Math.floor(Math.random()*(pool.length||arr.length))];
-  localStorage.setItem('form_msg_'+key,chosen);
+  const windowSize=arr.length>=10?5:3;
+  let recent=[];
+  try{recent=JSON.parse(localStorage.getItem('form_msg_recent_'+key)||'[]');}catch{recent=[];}
+  // Filter out recently used; if all used, reset and pick freely
+  let pool=arr.filter(m=>!recent.includes(m));
+  if(!pool.length)pool=arr;
+  const chosen=pool[Math.floor(Math.random()*pool.length)];
+  // Update recents, keep only last windowSize entries
+  recent=recent.filter(m=>m!==chosen);
+  recent.push(chosen);
+  if(recent.length>windowSize)recent=recent.slice(-windowSize);
+  try{localStorage.setItem('form_msg_recent_'+key,JSON.stringify(recent));}catch{}
   return chosen;
 }
 
@@ -1958,14 +2096,46 @@ const _PHOTO_DB='form_photo_db',_PHOTO_STORE='photos';
 
 function _openPhotoDB(){
   return new Promise((resolve,reject)=>{
-    const req=indexedDB.open(_PHOTO_DB,1);
+    const req=indexedDB.open(_PHOTO_DB,2); // v2 adds exercise_photos store
     req.onupgradeneeded=e=>{
       const db=e.target.result;
       if(!db.objectStoreNames.contains(_PHOTO_STORE)){
         db.createObjectStore(_PHOTO_STORE,{keyPath:'id',autoIncrement:true});
       }
+      if(!db.objectStoreNames.contains('exercise_photos')){
+        // Keyed by exerciseId string — one photo per exercise
+        db.createObjectStore('exercise_photos',{keyPath:'exerciseId'});
+      }
     };
     req.onsuccess=e=>resolve(e.target.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+// ── Exercise form photo helpers ────────────────────────────────────────────
+async function exPhotoGet(exerciseId){
+  const db=await _openPhotoDB();
+  return new Promise((resolve,reject)=>{
+    const req=db.transaction('exercise_photos','readonly').objectStore('exercise_photos').get(exerciseId);
+    req.onsuccess=()=>resolve(req.result||null);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function exPhotoSet(exerciseId,blob,mimeType,size){
+  const db=await _openPhotoDB();
+  return new Promise((resolve,reject)=>{
+    // put() replaces if key exists
+    const req=db.transaction('exercise_photos','readwrite').objectStore('exercise_photos')
+      .put({exerciseId,blob,mimeType,size,createdAt:Date.now()});
+    req.onsuccess=()=>resolve();
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function exPhotoDelete(exerciseId){
+  const db=await _openPhotoDB();
+  return new Promise((resolve,reject)=>{
+    const req=db.transaction('exercise_photos','readwrite').objectStore('exercise_photos').delete(exerciseId);
+    req.onsuccess=()=>resolve();
     req.onerror=()=>reject(req.error);
   });
 }
@@ -3062,12 +3232,40 @@ function renderProgChart(){
 // ════════════════════════════════════════════════════════════════════════════
 //  MODAL
 // ════════════════════════════════════════════════════════════════════════════
-function openModal(id,name,sets){
+// Store current modal context so upload/delete can re-render
+let _modalCtx=null;
+
+async function openModal(id,name,sets){
+  _modalCtx={id,name,sets};
   const info=INFO[id]||{};
   document.getElementById('mtitle').textContent=name;
   document.getElementById('msub').textContent=sets;
   const sec=(t,c)=>c?`<div class="msec"><div class="msec-t">${t}</div>${c}</div>`:'';
-  let h=`<div class="img-ph">📷 Add your own image or GIF here</div>`;
+
+  // Load exercise form photo from IndexedDB
+  const exPhoto=await exPhotoGet(id);
+  let photoHtml;
+  if(exPhoto&&exPhoto.blob){
+    const objUrl=URL.createObjectURL(exPhoto.blob);
+    photoHtml=`<div class="ex-photo-wrap">
+      <img src="${objUrl}" alt="Form reference" class="ex-photo-img" onload="URL.revokeObjectURL(this.src)">
+      <div class="ex-photo-actions">
+        <label class="ex-photo-replace" for="exFileIn_${id}">Replace photo</label>
+        <button class="ex-photo-remove" onclick="handleExPhotoDelete('${id}')">Remove</button>
+      </div>
+    </div>
+    <input type="file" id="exFileIn_${id}" class="ex-file-in" accept="image/*" onchange="handleExPhotoUpload(event,'${id}')">`;
+  } else {
+    photoHtml=`<div class="img-ph" onclick="document.getElementById('exFileIn_${id}').click()">
+      <label class="ex-add-btn" for="exFileIn_${id}">
+        <span>📷</span> Add a form photo
+      </label>
+      <div class="ex-add-hint">Tap to upload a photo showing how to do this exercise.</div>
+    </div>
+    <input type="file" id="exFileIn_${id}" class="ex-file-in" accept="image/*" onchange="handleExPhotoUpload(event,'${id}')">`;
+  }
+
+  let h=photoHtml;
   h+=sec('Target Muscles',info.muscles?`<p>${info.muscles}</p>`:'');
   if(info.cues?.length)h+=sec('Form Cues',`<ul>${info.cues.map(c=>`<li>${c}</li>`).join('')}</ul>`);
   if(info.mistakes?.length)h+=sec('Common Mistakes',`<ul>${info.mistakes.map(m=>`<li>${m}</li>`).join('')}</ul>`);
@@ -3078,6 +3276,33 @@ function openModal(id,name,sets){
   document.getElementById('mbody').innerHTML=h;
   document.getElementById('info-modal').classList.add('open');
 }
+
+async function handleExPhotoUpload(event,exerciseId){
+  const file=event.target.files[0];
+  if(event.target)event.target.value='';
+  if(!file)return;
+  showToast('Saving photo…');
+  try{
+    const {blob,mimeType}=await _compressPhoto(file);
+    await exPhotoSet(exerciseId,blob,mimeType,blob.size);
+    // Re-render modal with new photo
+    if(_modalCtx&&_modalCtx.id===exerciseId){
+      openModal(exerciseId,_modalCtx.name,_modalCtx.sets);
+    }
+    showToast('Form photo saved ✓');
+  }catch(err){
+    showToast('Could not save photo — try a smaller image.');
+  }
+}
+
+async function handleExPhotoDelete(exerciseId){
+  await exPhotoDelete(exerciseId);
+  if(_modalCtx&&_modalCtx.id===exerciseId){
+    openModal(exerciseId,_modalCtx.name,_modalCtx.sets);
+  }
+  showToast('Photo removed');
+}
+
 function closeModal(e){if(e.target===document.getElementById('info-modal'))document.getElementById('info-modal').classList.remove('open');}
 function closeModalDirect(){document.getElementById('info-modal').classList.remove('open');}
 
@@ -3165,6 +3390,7 @@ function renderDashMessage(){
         <p>I made this for you so you can easily track your workouts, see your progress over time, and hopefully feel proud of yourself as you get stronger. I love you so much, and I'm so proud of you for trying this out.</p>
         <p>This program is designed to help you build muscle in the areas that will make the biggest difference visually and metabolically: glutes, legs, back, and shoulders, with a little chest, arms, calves, and ankle-strengthening work mixed in for balance. The main goal is to see and feel progress over time.</p>
         <p>The workouts are all dumbbell-based, 6 days per week, and meant to be short enough to realistically fit into your life. Most sessions should take around 30-45 minutes if you move with purpose. The exercises were chosen because they are stable, repeatable, and easy to progressively overload, meaning you can slowly add reps or weight as you get stronger.</p>
+        <p>The streak system is here to make consistency feel fun, not stressful. You don't have to be perfect, and you don't have to do the exact suggested day for it to count. Any full workout or minimum version keeps the streak alive. Rest days count too, because recovery is part of getting stronger. The app gives you one automatic rest day after every six completed workouts, so you can take it when you need it without having to log anything. And if the streak ever breaks, it's not the end of the world. There's a comeback challenge built in, so if you complete six workouts after falling off, you can earn your streak back. The point is not to punish you for missing days. The point is to help you come back quickly, keep the rhythm going, and feel proud of the effort you're putting in.</p>
         <p>You do not need to track a million things. Just write down the weight and reps you used for each exercise, and the app will help you see when you're improving. Small increases count. One extra rep counts. Using the same weight with better control counts. The point is to make progress feel visible, because you deserve to actually see how much effort you're putting in.</p>
         <p>I'm so excited to watch you get stronger.</p>
         <p>For rest between sets, aim for about a minute. For bigger lower-body exercises like RDLs, Bulgarians, step-ups, and good mornings, you may need a little more rest so you can keep good form and actually push hard. For smaller exercises like raises, curls, calves, and tibialis raises, you can usually rest less. And for supersets that use different muscle groups, move from one exercise to the next without a formal rest, then take a shorter rest after the full superset round.</p>
@@ -3245,7 +3471,6 @@ function closePhotoModal(){
 }
 function dismissPhoto(e){if(e.target===document.getElementById('celeb-backdrop'))closePhotoModal();}
 // keep old ID alias for any lingering references
-function closeModalDirect(){document.getElementById('info-modal').classList.remove('open');}
 
 // ════════════════════════════════════════════════════════════════════════════
 //  CONFETTI + SOUND
