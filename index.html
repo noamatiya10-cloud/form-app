@@ -403,7 +403,10 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
 .cal-cell.full-w{background:var(--olive);color:#fff;font-weight:600;}
 .cal-cell.min-w{background:#72AA40;color:#fff;font-weight:600;}
 .cal-cell.rest-d{background:var(--ivory2);border:1px solid var(--border);color:var(--ink4);}
-.cal-cell.today{outline:2px solid var(--gold2);outline-offset:-1px;}
+.cal-cell.today{background:var(--olive5);color:var(--olive);font-weight:700;}
+.cal-cell.today::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--olive2);}
+.cal-cell.full-w.today{background:var(--olive);color:#fff;}
+.cal-cell.min-w.today{background:#72AA40;color:#fff;}
 .cal-cell.future{opacity:0.35;cursor:default;border:1.5px dashed var(--border);background:transparent;}
 .cal-cell.had-pr{outline:2px solid var(--gold2);outline-offset:-1px;}
 .cal-cell.had-pr.today{outline:2.5px solid var(--gold);outline-offset:-1px;}
@@ -427,9 +430,9 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
 .s-streak-tier-icon{font-size:17px;line-height:1;display:block;margin-bottom:1px;}
 
 /* ── DASHBOARD BOTTOM PAIR (calendar + message side by side) ── */
-.dash-bottom-pair{display:flex;gap:10px;padding:0 16px 16px;align-items:flex-start;}
-.dash-bottom-msg{flex:1.3;min-width:0;}
-.dash-bottom-cal{flex:1;min-width:0;}
+.dash-bottom-pair{display:block;}
+.dash-bottom-msg{display:block;}
+.dash-bottom-cal{display:block;}
 /* Compact calendar in the side panel */
 .month-cal-card.compact{margin:0;}
 .month-cal-card.compact .month-cal-head{padding:9px 10px 5px;}
@@ -477,6 +480,65 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
 .edit-btns{display:flex;gap:10px;margin-top:18px;}
 .edit-save{flex:2;background:linear-gradient(135deg,var(--olive),var(--olive2));border:none;border-radius:var(--r);padding:14px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;color:var(--white);cursor:pointer;}
 .edit-cancel{flex:1;background:var(--ivory);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink2);cursor:pointer;}
+
+/* ── COMEBACK BANNER ── */
+.comeback-card{background:linear-gradient(135deg,var(--gold5),var(--olive5));border:1.5px solid rgba(138,104,32,0.25);border-radius:var(--r);padding:14px 16px;text-align:center;box-shadow:var(--shadow);}
+.comeback-title{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--ink);font-weight:400;margin-bottom:4px;}
+.comeback-sub{font-size:12px;color:var(--ink2);font-weight:300;line-height:1.5;}
+.comeback-prog{height:5px;background:var(--ivory2);border-radius:3px;overflow:hidden;margin-top:10px;}
+.comeback-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold2),var(--olive3));border-radius:3px;transition:width 0.4s ease;}
+
+/* ── LOG YESTERDAY BUTTON ── */
+.log-yest-btn{display:block;width:100%;background:none;border:none;font-family:'Outfit',sans-serif;font-size:12px;color:var(--ink3);cursor:pointer;padding:8px 0 2px;text-align:center;text-decoration:underline;}
+.log-yest-btn:active{opacity:0.6;}
+
+/* ── STREAK CREDIT INDICATOR ── */
+.streak-credit-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:5px;vertical-align:middle;}
+.streak-credit-on{background:var(--gold2);}
+.streak-credit-off{background:var(--border2);}
+
+/* ── STREAK CARD TIER ANIMATIONS ── */
+@keyframes leafPulse{0%,100%{box-shadow:0 2px 16px rgba(61,84,38,0.07);}50%{box-shadow:0 2px 22px rgba(61,84,38,0.20);}}
+@keyframes goldGlowPulse{0%,100%{box-shadow:0 2px 18px rgba(184,146,10,0.12);}50%{box-shadow:0 4px 28px rgba(184,146,10,0.36);}}
+@keyframes auraShimmer{0%,100%{box-shadow:0 2px 22px rgba(184,146,10,0.22);}50%{box-shadow:0 6px 36px rgba(184,146,10,0.50);}}
+@keyframes olympusShimmer{0%{box-shadow:0 4px 32px rgba(184,146,10,0.38),0 0 0 1px rgba(184,146,10,0.22);}33%{box-shadow:0 8px 44px rgba(184,146,10,0.60),0 0 0 2px rgba(184,146,10,0.35);}66%{box-shadow:0 4px 36px rgba(138,104,32,0.48),0 0 0 1px rgba(138,104,32,0.28);}100%{box-shadow:0 4px 32px rgba(184,146,10,0.38),0 0 0 1px rgba(184,146,10,0.22);}}
+
+.streak-stat-card.t1{animation:leafPulse 5s ease-in-out infinite;}
+.streak-stat-card.t2{animation:leafPulse 4s ease-in-out infinite;border-color:rgba(92,122,56,0.3);}
+.streak-stat-card.t3{animation:goldGlowPulse 3.5s ease-in-out infinite;border-color:rgba(184,146,10,0.28);}
+.streak-stat-card.t4{animation:goldGlowPulse 3s ease-in-out infinite;border-color:rgba(184,146,10,0.40);}
+.streak-stat-card.t5{animation:auraShimmer 2.8s ease-in-out infinite;border-color:rgba(184,146,10,0.50);background:linear-gradient(135deg,var(--white) 60%,var(--gold5) 100%);}
+.streak-stat-card.t6{animation:auraShimmer 2.2s ease-in-out infinite;border-color:rgba(184,146,10,0.60);background:linear-gradient(135deg,var(--white) 50%,var(--gold5) 100%);}
+.streak-stat-card.t7{animation:olympusShimmer 2.2s ease-in-out infinite;border-color:rgba(184,146,10,0.70);background:linear-gradient(135deg,var(--white) 40%,var(--gold4) 100%);}
+
+/* ── TIER-UP OVERLAY ── */
+.tier-up-overlay{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s ease;padding:24px;}
+.tier-up-overlay.open{opacity:1;pointer-events:all;}
+.tier-up-card{background:var(--white);border-radius:24px;padding:32px 26px 26px;text-align:center;max-width:310px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.35),0 0 0 1px rgba(184,146,10,0.15);animation:tierCardPop 0.5s cubic-bezier(0.32,0.72,0,1) both;}
+@keyframes tierCardPop{from{transform:scale(0.72) translateY(24px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+.tier-up-icon-wrap{font-size:54px;display:block;margin-bottom:10px;animation:tierIconBounce 0.7s 0.25s cubic-bezier(0.32,0.72,0,1) both;}
+@keyframes tierIconBounce{0%{transform:scale(0.4);}65%{transform:scale(1.22);}100%{transform:scale(1);}}
+.tier-up-headline{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold2);margin-bottom:8px;}
+.tier-up-tier-name{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--ink);font-weight:400;line-height:1.15;margin-bottom:5px;}
+.tier-up-streak-count{font-size:14px;color:var(--olive2);font-weight:500;margin-bottom:6px;}
+.tier-up-tagline{font-size:13px;color:var(--ink3);font-style:italic;font-weight:300;margin-bottom:22px;line-height:1.5;}
+.tier-up-close{width:100%;background:linear-gradient(135deg,var(--olive),var(--olive2));border:none;border-radius:14px;padding:14px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;color:#fff;cursor:pointer;}
+
+/* ── CONNECTED STREAK CALENDAR STYLING (Feature 3) ── */
+/* The ::before pseudo-element forms the connecting bar behind cells */
+.csd{position:relative;z-index:1;}
+.csd::before{content:'';position:absolute;top:10%;bottom:10%;background:rgba(61,84,38,0.13);z-index:-1;pointer-events:none;}
+.streak-left::before{left:0;right:-3px;border-radius:7px 0 0 7px;}
+.streak-mid::before{left:-3px;right:-3px;}
+.streak-right::before{left:-3px;right:0;border-radius:0 7px 7px 0;}
+.streak-single::before{left:0;right:0;border-radius:7px;}
+/* ── CYCLE COMPLETE BANNER ── */
+.cycle-done-card{background:linear-gradient(135deg,var(--olive5) 0%,var(--gold5) 100%);border:1.5px solid rgba(138,104,32,0.25);border-radius:var(--r);padding:18px 16px;text-align:center;}
+.cycle-done-icon{font-size:30px;display:block;margin-bottom:6px;}
+.cycle-done-title{font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--ink);font-weight:400;margin-bottom:3px;}
+.cycle-done-sub{font-size:13px;color:var(--ink2);font-weight:300;margin-bottom:16px;}
+.cycle-done-btn{background:linear-gradient(135deg,var(--olive),var(--olive2));border:none;border-radius:var(--r);padding:13px 28px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;color:#fff;cursor:pointer;}
+
 /* ── SETTINGS ── */
 .settings-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
 .settings-item{display:flex;align-items:flex-start;padding:16px;border-bottom:1px solid var(--border);}
@@ -624,9 +686,10 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
   </div>
   <div class="stat-row">
     <div class="stat-card"><span class="stat-n" id="s-week">0/6</span><span class="stat-l">This Week</span></div>
-    <div class="stat-card streak-stat-card"><span class="s-streak-tier-icon" id="s-streak-icon">🍃</span><span class="stat-n" id="s-streak">0</span><span class="stat-l">Day Streak</span></div>
+    <div class="stat-card streak-stat-card" id="streak-stat-card"><span class="s-streak-tier-icon" id="s-streak-icon">🍃</span><span class="stat-n" id="s-streak">0</span><span class="stat-l">Day Streak</span></div>
     <div class="stat-card"><span class="stat-n" id="s-wnum">W1</span><span class="stat-l">Week</span></div>
   </div>
+  <div id="comeback-banner" style="display:none;padding:0 16px 10px;"></div>
   <div style="padding:0 16px;">
     <button class="share-btn" onclick="shareWeek()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -637,13 +700,14 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
     <div class="wc-label">This Week</div>
     <div class="wc-title" id="wc-dates">—</div>
     <div class="day-grid" id="dash-grid"></div>
+    <div id="cycle-complete-banner" style="display:none;margin-top:14px;"></div>
     <div style="display:flex;justify-content:center;margin-top:14px;opacity:0.4;">
       <svg viewBox="0 0 200 22" width="150" height="18" fill="none"><path d="M10,11 C40,5 80,17 100,11 C120,5 160,17 190,11" stroke="#8AA860" stroke-width="1.2" fill="none" stroke-linecap="round"/><ellipse cx="38" cy="7" rx="7" ry="3.2" fill="#8AA860" transform="rotate(-22 38 7)"/><ellipse cx="72" cy="14" rx="7" ry="3.2" fill="#8AA860" transform="rotate(17 72 14)"/><ellipse cx="130" cy="8" rx="7" ry="3.2" fill="#8AA860" transform="rotate(-17 130 8)"/><ellipse cx="163" cy="14" rx="6" ry="2.8" fill="#8AA860" transform="rotate(22 163 14)"/><circle cx="100" cy="11" r="2.5" fill="#3D5426"/><circle cx="55" cy="11" r="2" fill="#3D5426"/><circle cx="148" cy="11" r="2" fill="#3D5426"/></svg>
     </div>
   </div>
   <div class="dash-bottom-pair">
-    <div class="dash-bottom-msg" id="dash-message"></div>
     <div class="dash-bottom-cal" id="month-cal-container"></div>
+    <div class="dash-bottom-msg" id="dash-message"></div>
   </div>
 </div>
 
@@ -916,28 +980,28 @@ function getCelebMsg(dayNum, prs, isFullCycle, completionType){
 
 // ─── WARMUP ROUTINES ─────────────────────────────────────────────────────────
 const WARMUPS={
-  1:['5 min brisk walk','30 sec walking lunges','30 sec switch lunges','30 sec bodyweight squats','Rehearse each movement without weight'],
-  2:['Arm circles forward and back, 20–30 sec each direction','Shoulder rolls','Rehearse each movement without weight'],
-  3:['5 min brisk walk','30 sec walking lunges','30 sec switch lunges','30 sec bodyweight squats','Rehearse each movement without weight'],
-  4:['Arm circles forward and back, 20–30 sec each direction','Shoulder rolls','Rehearse each movement without weight'],
-  5:['5 min brisk walk','30 sec walking lunges','30 sec switch lunges','30 sec bodyweight squats','Rehearse each movement without weight'],
-  6:['Arm circles forward and back, 20–30 sec each direction','Shoulder rolls','Rehearse each movement without weight'],
+  1:['30 sec bodyweight hip hinges','10 bodyweight good mornings','10 slow glute bridges','1 light set DB RDL'],
+  2:['20 arm circles each direction','10 scapular squeezes','10 light rear delt flies','1 light set one-arm rows'],
+  3:['10 bodyweight squats','8 reverse lunges/side','10 calf raises','1 light set Bulgarians'],
+  4:['20 arm circles each direction','10 shoulder blade squeezes','10 incline push-ups','1 light set DB shoulder press'],
+  5:['30 sec hip hinges','10 bodyweight good mornings','8 step-ups/side','1 light set good mornings'],
+  6:['20 arm circles each direction','10 scapular squeezes','10 incline push-ups','1 light set rows or Arnold press'],
 };
 
 // ─── MINIMUM VERSION WORKOUTS ────────────────────────────────────────────────
 const MIN_VERSION={
   1:[
     {id:'d1_rdl',  name:'DB Romanian Deadlift',             sets:'2 × 8–12',     ns:2,rMin:8, rMax:12},
-    {id:'d1_bss',  name:'Bulgarian Split Squat (Glute Bias)',sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
+    {id:'d1_bss',  name:'Bulgarian Split Squat, Glute Bias',sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
     {id:'d1_tib',  name:'Tibialis Raises',                  sets:'1 × 15–20',    ns:1,rMin:15,rMax:20,bw:true},
   ],
   2:[
     {id:'d2_row1', name:'DB One-Arm Row',                   sets:'2 × 8–12/side',ns:2,rMin:8, rMax:12},
-    {id:'d2_rdf1', name:'Rear Delt Fly',                    sets:'2 × 12–15',    ns:2,rMin:12,rMax:15},
+    {id:'d2_bpa',  name:'Band Pull-Aparts',                 sets:'2 × 10–12',    ns:2,rMin:10,rMax:12,bw:true},
     {id:'d2_calf', name:'Standing DB Calf Raises',          sets:'1 × 12–15',    ns:1,rMin:12,rMax:15},
   ],
   3:[
-    {id:'d3_bss',  name:'Bulgarian Split Squat (Quad Bias)',sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
+    {id:'d3_bss',  name:'Bulgarian Split Squat, Upright / Quad Bias',sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
     {id:'d3_step', name:'Step-Ups',                         sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
   ],
   4:[
@@ -954,7 +1018,7 @@ const MIN_VERSION={
     {id:'d6_arnold',name:'Arnold Press',                    sets:'2 × 8–12',     ns:2,rMin:8, rMax:12},
     {id:'d6_row',  name:'DB Row',                           sets:'2 × 10–12',    ns:2,rMin:10,rMax:12},
     {id:'d6_pu',   name:'Push-Ups',                         sets:'1–2 × near failure',ns:1,rMin:8,rMax:30,bw:true},
-    {id:'d6_hc',   name:'Hammer Curls',                     sets:'1 × 10–15',    ns:1,rMin:10,rMax:15},
+    {id:'d6_hc',   name:'Hammer Curls',                     sets:'1 × 8–10',     ns:1,rMin:8, rMax:10},
   ],
 };
 
@@ -964,18 +1028,25 @@ let dayModes={};
 // ─── REST CATEGORIES ─────────────────────────────────────────────────────────
 // long = 60–90s (big compound lower), short = 45–60s (small isolation), default = ~60s
 const REST_CAT={
-  d1_rdl:'long',d1_bss:'long',d1_slrdl:'long',
-  d3_bss:'long',d3_step:'long',d3_hesq:'long',
-  d5_gm:'long',d5_step:'long',d5_rdl:'long',d5_sumo:'long',
+  // Heavy standalone compounds: 75–90s
+  d1_rdl:'long',d2_row1:'long',d4_press:'long',d5_gm:'long',d6_arnold:'long',
+  // Unilateral lower-body: 60–75s (after both sides)
+  d1_bss:'medium',d1_slrdl:'medium',d3_bss:'medium',d3_step:'medium',
+  // Day 5 Block B hard superset: 75–90s
+  d5_step:'long',d5_rdl:'long',
+  // Non-competing supersets / isolation: 45–60s
   d1_lat:'short',d1_tib:'short',
-  d2_rdf1:'short',d2_lat2:'short',d2_calf:'short',
-  d3_rdf:'short',d4_lat:'short',d4_tib:'short',
-  d5_calf:'short',d6_rdf:'short',d6_hc:'short',d6_pu:'short',
+  d2_bpa:'short',d2_lat2:'short',d2_calf:'short',d2_csrow:'short',
+  d3_lat3:'short',d3_hesq:'short',
+  d4_row:'short',d4_ab:'short',d4_inc:'short',d4_tib:'short',
+  d5_sumo:'short',d5_calf:'short',
+  d6_row:'short',d6_ab:'short',d6_pu:'short',d6_hc:'short',
 };
 function getRestInfo(id){
   const c=REST_CAT[id]||'default';
-  if(c==='long')  return{label:'Rest 60–90s',sec:75,tip:'Bigger movement — take the full rest'};
-  if(c==='short') return{label:'Rest 45–60s',sec:45,tip:'Isolation — shorter rest is fine'};
+  if(c==='long')   return{label:'Rest 75–90s',sec:80,tip:'Heavier compound — take the full rest'};
+  if(c==='medium') return{label:'Rest 60–75s',sec:67,tip:'Unilateral — rest after completing both sides'};
+  if(c==='short')  return{label:'Rest 45–60s',sec:50,tip:'Superset / isolation — shorter rest is fine'};
   return{label:'Rest ~60s',sec:60,tip:'Rest when ready'};
 }
 
@@ -1030,52 +1101,52 @@ const DAILY_MSGS = [
 //  PROGRAM
 // ════════════════════════════════════════════════════════════════════════════
 const PROGRAM=[
-  {day:1,short:'Post',name:'Posterior Chain + Glute Bias',note:'Hinge-heavy day. Form over weight.',blocks:[
-    {label:'A',type:'s',exercises:[{id:'d1_rdl',name:'DB Romanian Deadlift',sets:'3 × 8–12',ns:3,rMin:8,rMax:12}]},
-    {label:'B',type:'ss',exercises:[{id:'d1_bss',name:'Bulgarian Split Squat (Glute Bias)',sets:'3 × 8–10/leg',ns:3,rMin:8,rMax:10},{id:'d1_lat',name:'Lateral Raise',sets:'2 × 12–15',ns:2,rMin:12,rMax:15}]},
-    {label:'C',type:'ss',exercises:[{id:'d1_slrdl',name:'Single-Leg RDL',sets:'2 × 8–10/leg',ns:2,rMin:8,rMax:10},{id:'d1_tib',name:'Tibialis Raises',sets:'2 × 15–20',ns:2,rMin:15,rMax:20,bw:true}]}
+  {day:1,short:'Glutes',name:'Posterior Chain + Glute Bias',note:'Hip hinge focus. Feel your hamstrings and glutes working on every rep.',blocks:[
+    {label:'A',type:'s', exercises:[{id:'d1_rdl',  name:'DB Romanian Deadlift',             sets:'3 × 8–12',           ns:3,rMin:8, rMax:12}]},
+    {label:'B',type:'ss',exercises:[{id:'d1_bss',  name:'Bulgarian Split Squat, Glute Bias',sets:'3 × 8–10/leg',       ns:3,rMin:8, rMax:10},{id:'d1_lat',  name:'Lateral Raise',           sets:'2 × 12–15',    ns:2,rMin:12,rMax:15}]},
+    {label:'C',type:'ss',exercises:[{id:'d1_slrdl',name:'Single-Leg RDL',                   sets:'2 × 8–10/leg',       ns:2,rMin:8, rMax:10},{id:'d1_tib',  name:'Tibialis Raises',         sets:'2 × 15–20',    ns:2,rMin:15,rMax:20,bw:true}]},
   ]},
-  {day:2,short:'Back',name:'Back + Delts + Calves',note:'Grip-managed. No heavy rows back-to-back.',blocks:[
-    {label:'A',type:'s',exercises:[{id:'d2_row1',name:'DB One-Arm Row',sets:'3 × 8–12/side',ns:3,rMin:8,rMax:12}]},
-    {label:'B',type:'ss',exercises:[{id:'d2_calf',name:'Standing DB Calf Raises',sets:'2 × 12–15',ns:2,rMin:12,rMax:15},{id:'d2_rdf1',name:'Rear Delt Fly',sets:'2 × 12–15',ns:2,rMin:12,rMax:15}]},
-    {label:'C',type:'ss',exercises:[{id:'d2_csrow',name:'Chest-Supported DB Row',sets:'2 × 10–12',ns:2,rMin:10,rMax:12},{id:'d2_lat2',name:'Lateral Raise',sets:'2 × 12–15',ns:2,rMin:12,rMax:15}]}
+  {day:2,short:'Back',name:'Back + Delts + Calves',note:'Pull and brace. Control the weight on every rep.',blocks:[
+    {label:'A',type:'s', exercises:[{id:'d2_row1', name:'DB One-Arm Row',                   sets:'3 × 8–12/side',      ns:3,rMin:8, rMax:12}]},
+    {label:'B',type:'ss',exercises:[{id:'d2_calf', name:'Standing DB Calf Raises',          sets:'2 × 12–15',          ns:2,rMin:12,rMax:15},{id:'d2_bpa',  name:'Band Pull-Aparts',        sets:'2 × 10–12',    ns:2,rMin:10,rMax:12,bw:true}]},
+    {label:'C',type:'ss',exercises:[{id:'d2_csrow',name:'Chest-Supported DB Row',           sets:'2 × 10–12',          ns:2,rMin:10,rMax:12},{id:'d2_lat2', name:'Lateral Raise',           sets:'2 × 12–15',    ns:2,rMin:12,rMax:15}]},
   ]},
-  {day:3,short:'Quad',name:'Quad Focus',note:'Upright torso loads the quads.',blocks:[
-    {label:'A',type:'s',exercises:[{id:'d3_bss',name:'Bulgarian Split Squat (Quad Bias)',sets:'3 × 8–10/leg',ns:3,rMin:8,rMax:10}]},
-    {label:'B',type:'ss',exercises:[{id:'d3_step',name:'Step-Ups',sets:'3 × 8–10/leg',ns:3,rMin:8,rMax:10},{id:'d3_rdf',name:'Rear Delt Fly',sets:'2 × 12–15',ns:2,rMin:12,rMax:15}]},
-    {label:'C',type:'f',exercises:[{id:'d3_hesq',name:'Heel-Elevated DB Squat',sets:'2 × 10–12',ns:2,rMin:10,rMax:12}]}
+  {day:3,short:'Quads',name:'Quad Focus',note:'Upright torso loads the quads. Feel the burn.',blocks:[
+    {label:'A',type:'s', exercises:[{id:'d3_bss',  name:'Bulgarian Split Squat, Upright / Quad Bias',sets:'3 × 8–10/leg',       ns:3,rMin:8, rMax:10}]},
+    {label:'B',type:'ss',exercises:[{id:'d3_step', name:'Step-Ups',                         sets:'3 × 8–10/leg',       ns:3,rMin:8, rMax:10},{id:'d3_lat3', name:'Lateral Raise',           sets:'3 × 12–15',    ns:3,rMin:12,rMax:15}]},
+    {label:'C',type:'f', exercises:[{id:'d3_hesq', name:'Heel-Elevated DB Squat',           sets:'2 × 10–12',          ns:2,rMin:10,rMax:12}]},
   ]},
-  {day:4,short:'Upper',name:'Upper: Back + Chest + Shoulders',note:'Press, pull, repeat.',blocks:[
-    {label:'A',type:'s',exercises:[{id:'d4_press',name:'DB Shoulder Press',sets:'3 × 8–12',ns:3,rMin:8,rMax:12}]},
-    {label:'B',type:'ss',exercises:[{id:'d4_row',name:'DB Row',sets:'3 × 8–10',ns:3,rMin:8,rMax:10},{id:'d4_lat',name:'Lateral Raise',sets:'2 × 12–15',ns:2,rMin:12,rMax:15}]},
-    {label:'C',type:'ss',exercises:[{id:'d4_inc',name:'Incline DB Press',sets:'3 × 8–12',ns:3,rMin:8,rMax:12},{id:'d4_tib',name:'Tibialis Raises',sets:'2 × 15–20',ns:2,rMin:15,rMax:20,bw:true}]}
+  {day:4,short:'Upper',name:'Upper: Back + Chest + Shoulders',note:'Press, pull, core. Full upper-body day.',blocks:[
+    {label:'A',type:'s', exercises:[{id:'d4_press',name:'DB Shoulder Press',                sets:'3 × 8–12',           ns:3,rMin:8, rMax:12}]},
+    {label:'B',type:'ss',exercises:[{id:'d4_row',  name:'DB Row',                           sets:'3 × 8–10',           ns:3,rMin:8, rMax:10},{id:'d4_ab',   name:'Ab Work',                 sets:'3 × 1 min',    ns:3,rMin:1, rMax:1, bw:true}]},
+    {label:'C',type:'ss',exercises:[{id:'d4_inc',  name:'Incline DB Press',                 sets:'3 × 8–12',           ns:3,rMin:8, rMax:12},{id:'d4_tib',  name:'Tibialis Raises',         sets:'2 × 15–20',    ns:2,rMin:15,rMax:20,bw:true}]},
   ]},
-  {day:5,short:'Ham',name:'Posterior Chain / Hamstring',note:'Hardest lower-body day. Take your time.',blocks:[
-    {label:'A',type:'s',exercises:[{id:'d5_gm',name:'DB Good Morning',sets:'3 × 10–12',ns:3,rMin:10,rMax:12}]},
-    {label:'B',type:'ss',exercises:[{id:'d5_step',name:'Step-Ups (Glute Bias)',sets:'3 × 8–10/leg',ns:3,rMin:8,rMax:10},{id:'d5_rdl',name:'DB Romanian Deadlift',sets:'2 × 8–10',ns:2,rMin:8,rMax:10}]},
-    {label:'C',type:'ss',exercises:[{id:'d5_sumo',name:'Sumo DB Squat',sets:'2 × 10–12',ns:2,rMin:10,rMax:12},{id:'d5_calf',name:'Standing DB Calf Raises',sets:'2 × 12–15',ns:2,rMin:12,rMax:15}]}
+  {day:5,short:'Hams',name:'Posterior Chain / Hamstring Correction',note:'Hardest lower-body day. Take full rest between sets.',blocks:[
+    {label:'A',type:'s', exercises:[{id:'d5_gm',   name:'DB Good Morning',                  sets:'3 × 10–12',          ns:3,rMin:10,rMax:12}]},
+    {label:'B',type:'ss',exercises:[{id:'d5_step', name:'Step-Ups, Glute Bias / High Box', sets:'2 × 8–10/leg',       ns:2,rMin:8, rMax:10},{id:'d5_rdl',  name:'DB Romanian Deadlift',    sets:'2 × 8–10',     ns:2,rMin:8, rMax:10}]},
+    {label:'C',type:'ss',exercises:[{id:'d5_sumo', name:'Sumo DB Squat',                    sets:'2 × 10–12',          ns:2,rMin:10,rMax:12},{id:'d5_calf', name:'Standing DB Calf Raises', sets:'2 × 12–15',    ns:2,rMin:12,rMax:15}]},
   ]},
-  {day:6,short:'Arms',name:'Back + Chest + Arms/Shoulders',note:'Finish the week strong.',blocks:[
-    {label:'A',type:'s',exercises:[{id:'d6_arnold',name:'Arnold Press',sets:'3 × 8–12',ns:3,rMin:8,rMax:12}]},
-    {label:'B',type:'ss',exercises:[{id:'d6_row',name:'DB Row',sets:'3 × 10–12',ns:3,rMin:10,rMax:12},{id:'d6_rdf',name:'Rear Delt Fly',sets:'2 × 12–15',ns:2,rMin:12,rMax:15}]},
-    {label:'C',type:'ss',exercises:[{id:'d6_pu',name:'Push-Ups',sets:'2–3 × near failure',ns:2,rMin:8,rMax:30,bw:true},{id:'d6_hc',name:'Hammer Curls',sets:'2 × 10–15',ns:2,rMin:10,rMax:15}]}
-  ]}
-];
+  {day:6,short:'Arms',name:'Back + Chest + Arms/Shoulders',note:'Finish the week strong. Push, pull, and squeeze.',blocks:[
+    {label:'A',type:'s', exercises:[{id:'d6_arnold',name:'Arnold Press',                    sets:'3 × 8–12',           ns:3,rMin:8, rMax:12}]},
+    {label:'B',type:'ss',exercises:[{id:'d6_row',  name:'DB Row',                           sets:'3 × 10–12',          ns:3,rMin:10,rMax:12},{id:'d6_ab',   name:'Ab Work',                 sets:'3 × 1 min',    ns:3,rMin:1, rMax:1, bw:true}]},
+    {label:'C',type:'ss',exercises:[{id:'d6_pu',   name:'Push-Ups',                         sets:'3 sets near failure',ns:3,rMin:8, rMax:30,bw:true},{id:'d6_hc',  name:'Hammer Curls',     sets:'3 × 8–10',     ns:3,rMin:8, rMax:10}]},
+  ]},
+]
 
 // ─── MINIMUM VERSION PROGRAM ──────────────────────────────────────────────────
 const MIN_PROGRAM=[
   {day:1,exercises:[
     {id:'d1_rdl',  name:'DB Romanian Deadlift',              sets:'2 × 8–12',     ns:2,rMin:8, rMax:12},
-    {id:'d1_bss',  name:'Bulgarian Split Squat (Glute Bias)',sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
+    {id:'d1_bss',  name:'Bulgarian Split Squat, Glute Bias',sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
     {id:'d1_tib',  name:'Tibialis Raises',                   sets:'1 × 15–20',    ns:1,rMin:15,rMax:20,bw:true},
   ]},
   {day:2,exercises:[
     {id:'d2_row1', name:'DB One-Arm Row',                    sets:'2 × 8–12/side',ns:2,rMin:8, rMax:12},
-    {id:'d2_rdf1', name:'Rear Delt Fly',                     sets:'2 × 12–15',    ns:2,rMin:12,rMax:15},
+    {id:'d2_bpa',  name:'Band Pull-Aparts',                  sets:'2 × 10–12',    ns:2,rMin:10,rMax:12,bw:true},
     {id:'d2_calf', name:'Standing DB Calf Raises',           sets:'1 × 12–15',    ns:1,rMin:12,rMax:15},
   ]},
   {day:3,exercises:[
-    {id:'d3_bss',  name:'Bulgarian Split Squat (Quad Bias)', sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
+    {id:'d3_bss',  name:'Bulgarian Split Squat, Upright / Quad Bias', sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
     {id:'d3_step', name:'Step-Ups',                          sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
   ]},
   {day:4,exercises:[
@@ -1092,7 +1163,7 @@ const MIN_PROGRAM=[
     {id:'d6_arnold',name:'Arnold Press',                     sets:'2 × 8–12',     ns:2,rMin:8, rMax:12},
     {id:'d6_row',  name:'DB Row',                            sets:'2 × 10–12',    ns:2,rMin:10,rMax:12},
     {id:'d6_pu',   name:'Push-Ups',                          sets:'1–2 sets near failure',ns:1,rMin:8,rMax:30,bw:true},
-    {id:'d6_hc',   name:'Hammer Curls',                      sets:'1 × 10–15',    ns:1,rMin:10,rMax:15},
+    {id:'d6_hc',   name:'Hammer Curls',                      sets:'1 × 8–10',     ns:1,rMin:8, rMax:10},
   ]},
 ];
 
@@ -1101,55 +1172,59 @@ const DAY_MODES={1:'full',2:'full',3:'full',4:'full',5:'full',6:'full'};
 
 // ─── EXERCISE GROUPS ─────────────────────────────────────────────────────────
 const GROUPS={
-  'lateral_raise':{name:'Lateral Raise',     ids:['d1_lat','d2_lat2','d4_lat'],bw:false},
-  'rear_delt_fly':{name:'Rear Delt Fly',      ids:['d2_rdf1','d3_rdf','d6_rdf'],bw:false},
-  'rdl':          {name:'Romanian Deadlift',  ids:['d1_rdl','d5_rdl'],          bw:false},
-  'step_ups':     {name:'Step-Ups',           ids:['d3_step','d5_step'],         bw:false},
-  'db_row':       {name:'DB Row',             ids:['d4_row','d6_row'],           bw:false},
-  'calf_raises':  {name:'Calf Raises',        ids:['d2_calf','d5_calf'],         bw:false},
-  'tib_raises':   {name:'Tibialis Raises',    ids:['d1_tib','d4_tib'],           bw:true},
-  'd1_bss':       {name:'Split Squat (Glute)',ids:['d1_bss'],  bw:false},
-  'd1_slrdl':     {name:'Single-Leg RDL',     ids:['d1_slrdl'],bw:false},
-  'd2_row1':      {name:'One-Arm Row',        ids:['d2_row1'], bw:false},
-  'd2_csrow':     {name:'Chest-Supported Row',ids:['d2_csrow'],bw:false},
-  'd3_bss':       {name:'Split Squat (Quad)', ids:['d3_bss'],  bw:false},
-  'd3_hesq':      {name:'Heel-Elevated Squat',ids:['d3_hesq'], bw:false},
-  'd4_press':     {name:'Shoulder Press',     ids:['d4_press'],bw:false},
-  'd4_inc':       {name:'Incline DB Press',   ids:['d4_inc'],  bw:false},
-  'd5_gm':        {name:'Good Morning',       ids:['d5_gm'],   bw:false},
-  'd5_sumo':      {name:'Sumo Squat',         ids:['d5_sumo'], bw:false},
-  'd6_arnold':    {name:'Arnold Press',       ids:['d6_arnold'],bw:false},
-  'd6_pu':        {name:'Push-Ups',           ids:['d6_pu'],   bw:true},
-  'd6_hc':        {name:'Hammer Curls',       ids:['d6_hc'],   bw:false},
+  'lateral_raise':{name:'Lateral Raise',            ids:['d1_lat','d2_lat2','d3_lat3'],bw:false},
+  'rdl':          {name:'Romanian Deadlift',         ids:['d1_rdl','d5_rdl'],           bw:false},
+  'db_row':       {name:'DB Row',                    ids:['d4_row','d6_row'],            bw:false},
+  'calf_raises':  {name:'Calf Raises',               ids:['d2_calf','d5_calf'],          bw:false},
+  'tib_raises':   {name:'Tibialis Raises',           ids:['d1_tib','d4_tib'],            bw:true},
+  'd1_bss':       {name:'Split Squat, Glute Bias',       ids:['d1_bss'],   bw:false},
+  'd1_slrdl':     {name:'Single-Leg RDL',            ids:['d1_slrdl'], bw:false},
+  'd2_row1':      {name:'One-Arm Row',               ids:['d2_row1'],  bw:false},
+  'd2_bpa':       {name:'Band Pull-Aparts',          ids:['d2_bpa'],   bw:true},
+  'd2_csrow':     {name:'Chest-Supported Row',       ids:['d2_csrow'], bw:false},
+  'd3_bss':       {name:'Split Squat, Quad Bias',         ids:['d3_bss'],   bw:false},
+  'd3_step':      {name:'Step-Ups',                  ids:['d3_step'],  bw:false},
+  'd3_hesq':      {name:'Heel-Elevated Squat',       ids:['d3_hesq'],  bw:false},
+  'd4_press':     {name:'Shoulder Press',             ids:['d4_press'], bw:false},
+  'd4_ab':        {name:'Ab Work',                   ids:['d4_ab'],    bw:true},
+  'd4_inc':       {name:'Incline DB Press',           ids:['d4_inc'],   bw:false},
+  'd5_gm':        {name:'Good Morning',               ids:['d5_gm'],    bw:false},
+  'd5_step':      {name:'Step-Ups, Glute Bias / High Box',  ids:['d5_step'],  bw:false},
+  'd5_sumo':      {name:'Sumo Squat',                 ids:['d5_sumo'],  bw:false},
+  'd6_arnold':    {name:'Arnold Press',               ids:['d6_arnold'],bw:false},
+  'd6_ab':        {name:'Ab Work (D6)',               ids:['d6_ab'],    bw:true},
+  'd6_pu':        {name:'Push-Ups',                   ids:['d6_pu'],    bw:true},
+  'd6_hc':        {name:'Hammer Curls',               ids:['d6_hc'],    bw:false},
 };
-const ID2G={};Object.entries(GROUPS).forEach(([gk,g])=>g.ids.forEach(id=>{ID2G[id]=gk;}));
+const ID2G={};Object.entries(GROUPS).forEach(([gk,g])=>g.ids.forEach(id=>{ID2G[id]=gk;}));Object.entries(GROUPS).forEach(([gk,g])=>g.ids.forEach(id=>{ID2G[id]=gk;}));
 
 // ─── COLORS ───────────────────────────────────────────────────────────────────
 const GC={
-  'rdl':          '#2D5016','step_ups':     '#4A7C30','lateral_raise':'#8B6914',
-  'rear_delt_fly':'#C4921A','calf_raises':  '#1A5C3A','tib_raises':   '#2A8A5A',
-  'db_row':       '#1A3A6A','d1_bss':       '#7A3020','d3_bss':       '#A05030',
-  'd1_slrdl':     '#5A2070','d2_row1':      '#1A5A5A','d2_csrow':     '#3A5A1A',
-  'd3_hesq':      '#6A5A10','d4_press':     '#8A1A50','d4_inc':       '#1A4A8A',
-  'd5_gm':        '#5A3A0A','d5_sumo':      '#3A1A5A','d6_arnold':    '#7A1A1A',
-  'd6_pu':        '#1A6A4A','d6_hc':        '#5A6A0A',
+  'rdl':          '#2D5016','lateral_raise': '#8B6914','db_row':        '#1A3A6A',
+  'calf_raises':  '#1A5C3A','tib_raises':   '#2A8A5A',
+  'd1_bss':       '#7A3020','d1_slrdl':     '#5A2070',
+  'd2_row1':      '#1A5A5A','d2_bpa':       '#7A5A1A','d2_csrow':     '#3A5A1A',
+  'd3_bss':       '#A05030','d3_step':      '#4A7C30','d3_hesq':      '#6A5A10',
+  'd4_press':     '#8A1A50','d4_ab':        '#4A2A6A','d4_inc':       '#1A4A8A',
+  'd5_gm':        '#5A3A0A','d5_step':      '#3A6A28','d5_sumo':      '#3A1A5A',
+  'd6_arnold':    '#7A1A1A','d6_ab':        '#3A2A5A','d6_pu':        '#1A6A4A','d6_hc':'#5A6A0A',
 };
 function hexAlpha(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
 
 // ─── MUSCLE GROUP FILTERS ────────────────────────────────────────────────────
 const FILTERS={
-  'All':      Object.keys(GROUPS),
-  'Glutes':   ['rdl','step_ups','d1_bss','d3_bss','d1_slrdl','d5_gm','d5_sumo'],
-  'Hamstrings':['rdl','d1_slrdl','d5_gm','step_ups'],
-  'Quads':    ['d3_bss','step_ups','d3_hesq','d5_sumo'],
-  'Back':     ['d2_row1','d2_csrow','db_row','rear_delt_fly'],
-  'Shoulders':['lateral_raise','rear_delt_fly','d4_press','d6_arnold'],
-  'Push':     ['d4_press','d4_inc','d6_arnold','d6_pu'],
-  'Pull':     ['d2_row1','d2_csrow','db_row','rear_delt_fly'],
-  'Upper':    ['lateral_raise','rear_delt_fly','d4_press','d4_inc','d2_row1','d2_csrow','db_row','d6_arnold','d6_pu','d6_hc'],
-  'Lower':    ['rdl','step_ups','d1_bss','d3_bss','d1_slrdl','d3_hesq','d5_gm','d5_sumo','calf_raises','tib_raises'],
-  'Arms':     ['d6_hc'],
-  'Calves':   ['calf_raises','tib_raises'],
+  'All':       Object.keys(GROUPS),
+  'Glutes':    ['rdl','d1_bss','d1_slrdl','d3_bss','d5_step','d5_sumo'],
+  'Hamstrings':['rdl','d1_slrdl','d5_gm'],
+  'Quads':     ['d3_bss','d3_step','d3_hesq','d5_sumo'],
+  'Back':      ['d2_row1','d2_csrow','db_row'],
+  'Shoulders': ['lateral_raise','d4_press','d6_arnold','d2_bpa'],
+  'Push':      ['d4_press','d4_inc','d6_arnold','d6_pu'],
+  'Pull':      ['d2_row1','d2_csrow','db_row','lateral_raise','d2_bpa'],
+  'Upper':     ['lateral_raise','d2_row1','d2_bpa','d2_csrow','d4_press','d4_row','d4_ab','d4_inc','d6_arnold','d6_row','d6_ab','d6_pu','d6_hc'],
+  'Lower':     ['rdl','d1_bss','d1_slrdl','tib_raises','calf_raises','d3_bss','d3_step','d3_hesq','d5_gm','d5_step','d5_sumo'],
+  'Arms':      ['d6_hc'],
+  'Calves':    ['calf_raises','tib_raises'],
 };
 
 // ─── EXERCISE INFO ─────────────────────────────────────────────────────────
@@ -1182,7 +1257,11 @@ const INFO={
   d6_row:{muscles:'Lats, rhomboids, mid-back, biceps',cues:['Hinge forward','Pull elbows past torso','Full stretch at bottom','Squeeze at top'],mistakes:['Short range','Momentum'],effort:'1–2 RIR.',safety:'Neutral spine.',grip:'Neutral.',prog:'Hit 12? Add 5 lb.'},
   d6_rdf:{muscles:'Rear delts, rhomboids, mid-traps',cues:['Bent over, arms open wide','Lead with elbows','Squeeze at top'],mistakes:['Shrugging traps'],effort:'Close to failure.',safety:'Light weight.',grip:'Neutral.',prog:'Hit 15? Add 2 lb.'},
   d6_pu:{muscles:'Chest, front delts, triceps, core',cues:['Hands slightly wider than shoulders','Body in one straight line','Lower until chest nearly touches floor','Elbows at ~45°','Full lockout at top'],mistakes:['Hips sagging','Elbows flaring','Short range'],effort:'Near failure.',safety:'Use fists if wrists bother you.',grip:'Shoulder-width or slightly wider.',prog:'Hit 15+? Elevate feet or add a resistance band.'},
-  d6_hc:{muscles:'Biceps, brachialis, brachioradialis',cues:['Neutral grip throughout — thumbs up always','Upper arm stays at side','Full extension at bottom','Squeeze hard at top'],mistakes:['Rotating to supinated grip','Swinging elbows','Momentum'],effort:'Close to failure.',safety:'Do not hyperextend elbows at bottom.',grip:'Neutral grip (thumbs up) throughout.',prog:'Hit 15? Add 2–5 lb.'}
+  d6_hc:{muscles:'Biceps, brachialis, brachioradialis',cues:['Neutral grip throughout — thumbs up always','Upper arm stays at side','Full extension at bottom','Squeeze hard at top'],mistakes:['Rotating to supinated grip','Swinging elbows','Momentum'],effort:'Close to failure.',safety:'Do not hyperextend elbows at bottom.',grip:'Neutral grip (thumbs up) throughout.',prog:'Hit 15? Add 2–5 lb.'},
+  d2_bpa:{muscles:'Rear deltoids, rhomboids, mid-traps',cues:['Hold band at shoulder width','Pull apart until band touches chest','Lead with elbows out and back','Control the return'],mistakes:['Going too wide too fast','Shrugging traps','No pause at end'],effort:'Close to failure.',safety:'Use a band with appropriate tension.',grip:'Overhand or neutral.',prog:'Hit 12 easily? Use a heavier band.'},
+  d3_lat3:{muscles:'Lateral deltoids',cues:['Lead with elbows not wrists','Raise to shoulder height only','Slight elbow bend throughout','Control the descent'],mistakes:['Shrugging traps','Swinging with momentum','Going above shoulder height'],effort:'Close to failure.',safety:'Lighter weight is fine — it is isolation.',grip:'Neutral.',prog:'Hit 15 clean? Add 2 lb.'},
+  d4_ab:{muscles:'Rectus abdominis, obliques, transverse abdominis',cues:['Pick one core exercise — planks, dead bugs, hollow holds, or similar','Brace core hard throughout','Breathe steadily — do not hold breath','Keep lower back from arching'],mistakes:['Rushing the minute','Letting hips sag','Forgetting to breathe'],effort:'Sustained strong effort for full minute.',safety:'Quality over endurance.',grip:'Bodyweight.',prog:'Make each minute harder by slowing tempo or adding instability.'},
+  d6_ab:{muscles:'Rectus abdominis, obliques, transverse abdominis',cues:['Pick one core exercise per set','Full minute of controlled effort','Breathe through the whole set'],mistakes:['Rushing','Back arching','Inconsistent tension'],effort:'Sustained effort.',safety:'Stop if lower back takes over.',grip:'Bodyweight.',prog:'Make each set progressively harder.'}
 };
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1226,42 +1305,116 @@ function saveEntry(id,weight,reps,note,completed,ns){
   sd(data);
 }
 
-function markDone(d,v){
-  const data=gd();if(!data.done)data.done={};
-  const wk=weekKey();if(!data.done[wk])data.done[wk]={};
-  data.done[wk][d]=v; // v: false | "full" | "minimum" (legacy: true treated as "full")
+// ─── CYCLE MANAGEMENT ─────────────────────────────────────────────────────
+// A "cycle" = completing all 6 unique workout days in any order/timeframe.
+// Entirely separate from calendar weeks; does not erase history/PRs/streaks.
+
+function _initCycle(){
+  return{cycleNum:1,completed:{1:false,2:false,3:false,4:false,5:false,6:false},startDate:todayStr()};
+}
+
+// Called on init — migrate from week-based data if needed
+function ensureCurrentCycle(){
+  const data=gd();
+  if(data.currentCycle)return;
+  // Migrate: seed from current week's done data (preserves in-progress week)
+  const wk=weekKey();
+  const wd=(data.done&&data.done[wk])||{};
+  // Estimate cycle number from historical weeks
+  const ws=data.done?Object.keys(data.done).sort():[];
+  const cn=ws.length?Math.floor((new Date(weekKey())-new Date(ws[0]))/(7*86400000))+1:1;
+  data.currentCycle={
+    cycleNum:Math.max(1,cn),
+    completed:{
+      1:wd[1]||false,2:wd[2]||false,3:wd[3]||false,
+      4:wd[4]||false,5:wd[5]||false,6:wd[6]||false
+    },
+    startDate:todayStr()
+  };
   sd(data);
 }
-function isDone(d){
-  const da=gd(),wk=weekKey();
-  const v=da.done&&da.done[wk]&&da.done[wk][d];
-  return !!v; // truthy for "full", "minimum", or legacy true
-}
-function getCompletionType(d){
-  const da=gd(),wk=weekKey();
-  if(!da.done||!da.done[wk])return null;
-  const v=da.done[wk][d];
-  if(!v)return null;
-  if(v===true)return'full'; // legacy
-  return v; // "full" or "minimum"
-}
-function weekCnt(){const d=gd(),wk=weekKey();if(!d.done||!d.done[wk])return 0;return Object.values(d.done[wk]).filter(Boolean).length;}
-function totalSess(){const d=gd();if(!d.done)return 0;let n=0;Object.values(d.done).forEach(w=>Object.values(w).forEach(v=>{if(v)n++;}));return n;}
-function weekNum(){const d=gd();if(!d.done)return 1;const ws=Object.keys(d.done).sort();if(!ws.length)return 1;return Math.floor((new Date(weekKey())-new Date(ws[0]))/(7*86400000))+1;}
-function sugDay(){
+
+function markDone(d,v){
   const data=gd();
-  if(!data.done)return 0;
-  let lastDayNum=0;
-  const allWeeks=Object.keys(data.done).sort();
-  for(let wi=allWeeks.length-1;wi>=0;wi--){
-    const wk=data.done[allWeeks[wi]];
-    for(let d=6;d>=1;d--){
-      if(wk[d]){lastDayNum=d;break;} // truthy = done, regardless of type
-    }
-    if(lastDayNum)break;
+  if(!data.currentCycle)data.currentCycle=_initCycle();
+  data.currentCycle.completed[d]=v;
+  // Also keep legacy data.done for any history-based reads
+  if(!data.done)data.done={};
+  const wk=weekKey();
+  if(!data.done[wk])data.done[wk]={};
+  data.done[wk][d]=v;
+  sd(data);
+}
+
+function isDone(d){
+  const cc=(gd().currentCycle||{}).completed||{};
+  return !!cc[d];
+}
+
+function getCompletionType(d){
+  const cc=(gd().currentCycle||{}).completed||{};
+  const v=cc[d];
+  if(!v)return null;
+  if(v===true)return'full';
+  return v;
+}
+
+// Count unique days completed in current cycle
+function weekCnt(){
+  const cc=(gd().currentCycle||{}).completed||{};
+  return Object.values(cc).filter(Boolean).length;
+}
+
+function totalSess(){
+  const d=gd();if(!d.done)return 0;
+  let n=0;Object.values(d.done).forEach(w=>Object.values(w).forEach(v=>{if(v)n++;}));
+  return n;
+}
+
+// Cycle number (not calendar week number)
+function weekNum(){return(gd().currentCycle||{cycleNum:1}).cycleNum;}
+
+// Suggest the next incomplete day in current cycle, going in sequence from last done
+function sugDay(){
+  const cc=(gd().currentCycle||{}).completed||{};
+  const doneDays=[1,2,3,4,5,6].filter(d=>!!cc[d]);
+  if(!doneDays.length)return 0; // Suggest Day 1 (index 0)
+  const lastDone=Math.max(...doneDays);
+  // Walk forward from lastDone, find first incomplete day
+  for(let i=1;i<=6;i++){
+    const nextDay=((lastDone-1+i)%6)+1;
+    if(!cc[nextDay])return nextDay-1; // 0-based index
   }
-  const nextDayNum=lastDayNum===0?1:(lastDayNum%6)+1;
-  return nextDayNum-1;
+  return 0; // all done (cycle should have reset already)
+}
+
+// Check if all 6 days are done → reset cycle, keep all history
+function checkCycleComplete(){
+  const data=gd();
+  const cc=data.currentCycle||{};
+  if(cc.awaitingReset)return; // already flagged, waiting for user to begin next cycle
+  const allDone=[1,2,3,4,5,6].every(d=>!!(cc.completed||{})[d]);
+  if(!allDone)return;
+  // Mark as complete but do NOT reset yet — let her see the completed state
+  data.currentCycle.awaitingReset=true;
+  sd(data);
+  // Just update the dashboard display — no reset, no rebuild
+  updateDash();
+}
+
+// Called when she taps "Begin Cycle N" — this is when the visual reset happens
+function startNewCycle(){
+  const data=gd();
+  const newNum=((data.currentCycle||{}).cycleNum||1)+1;
+  data.currentCycle={
+    cycleNum:newNum,
+    completed:{1:false,2:false,3:false,4:false,5:false,6:false},
+    startDate:todayStr(),
+    awaitingReset:false
+  };
+  sd(data);
+  updateDash();
+  buildWorkout();
 }
 
 // ─── HINTS ───────────────────────────────────────────────────────────────────
@@ -1880,13 +2033,58 @@ function daysBetweenDates(d1,d2){return Math.round((new Date(d2+'T00:00')-new Da
 
 // ── Streak tier ────────────────────────────────────────────────────────────
 function getStreakTier(n){
-  if(n>=60)return{icon:'👑',cls:'tier-7',sub:'Mount Olympus'};
-  if(n>=45)return{icon:'🏆',cls:'tier-6',sub:'Olympian'};
-  if(n>=30)return{icon:'🔥',cls:'tier-5',sub:'Unstoppable'};
-  if(n>=14)return{icon:'🔥',cls:'tier-4',sub:'On fire'};
-  if(n>=7) return{icon:'⭐',cls:'tier-3',sub:'Building'};
-  if(n>=3) return{icon:'🌿',cls:'tier-2',sub:'Growing'};
-  return{icon:'🍃',cls:'tier-1',sub:'Just started'};
+  if(n>=60)return{icon:'👑',cls:'tier-7',sub:'Mount Olympus Crown', name:'Mount Olympus Crown', cardCls:'t7',tierIdx:6};
+  if(n>=45)return{icon:'🔥',cls:'tier-6',sub:'Divine Torch',        name:'Divine Torch',        cardCls:'t6',tierIdx:5};
+  if(n>=30)return{icon:'🔥',cls:'tier-5',sub:'Olympian Torch',      name:'Olympian Torch',      cardCls:'t5',tierIdx:4};
+  if(n>=14)return{icon:'🏅',cls:'tier-4',sub:'Golden Laurel',       name:'Golden Laurel',       cardCls:'t4',tierIdx:3};
+  if(n>=7) return{icon:'🌟',cls:'tier-3',sub:'Olive Flame',         name:'Olive Flame',         cardCls:'t3',tierIdx:2};
+  if(n>=3) return{icon:'🌿',cls:'tier-2',sub:'Growing Sprig',       name:'Growing Sprig',       cardCls:'t2',tierIdx:1};
+  return        {icon:'🍃',cls:'tier-1',sub:'Olive Leaf',           name:'Olive Leaf',           cardCls:'t1',tierIdx:0};
+}
+
+// Tier-up celebration: only fires when tier increases and hasn't been shown yet
+function checkAndShowTierUp(oldStreak,newStreak){
+  const oldTier=getStreakTier(oldStreak).tierIdx;
+  const newTier=getStreakTier(newStreak).tierIdx;
+  if(newTier<=oldTier)return; // no upgrade
+  const lastShown=parseInt(localStorage.getItem('form_last_tier_shown')??'-1');
+  if(lastShown>=newTier)return; // already shown this tier
+  localStorage.setItem('form_last_tier_shown',String(newTier));
+  // Delay so confetti finishes first
+  setTimeout(()=>showTierUpSheet(newStreak),2400);
+}
+
+function showTierUpSheet(streak){
+  const tier=getStreakTier(streak);
+  const el=id=>document.getElementById(id);
+  const ov=el('tier-up-overlay');if(!ov)return;
+  el('tier-up-icon-wrap').textContent=tier.icon;
+  el('tier-up-tier-name').textContent=tier.name+' Unlocked';
+  el('tier-up-streak-count').textContent=streak+' day streak';
+  ov.classList.add('open');
+  // Gold confetti burst for 14+ day milestones
+  if(streak>=14)spawnConfetti();
+}
+function closeTierUp(){document.getElementById('tier-up-overlay')?.classList.remove('open');}
+
+// Compute which dates are in the current active streak
+function getCurrentStreakDates(){
+  const data=gd(),cal=data.calendar||{},s=data.streak||{};
+  const today=todayStr();
+  const dates=new Set();
+  let creditUsed=false,creditAvail=!!s.restCreditAvailable;
+  let cur=today;
+  for(let i=0;i<730;i++){
+    const t=(cal[cur]||{}).type;
+    if(t==='full'||t==='minimum'||t==='automatic_rest'){dates.add(cur);}
+    else{
+      if(i===0){cur=getPrevDate(cur);continue;}
+      if(!creditUsed&&creditAvail){dates.add(cur);creditUsed=true;}
+      else break;
+    }
+    cur=getPrevDate(cur);
+  }
+  return dates;
 }
 
 // ── Calendar data access ───────────────────────────────────────────────────
@@ -1920,49 +2118,108 @@ function migrateCalendarData(){
         else break;
       }
     }
-    data.streak={current:streak,lastWorkoutDate:wktDates[wktDates.length-1],
-      workoutsSinceRest:Math.min(wsRest,6),restCreditAvailable:wsRest>=6};
+    data.streak={workoutsTowardCredit:wsRest%6,restCreditAvailable:wsRest>=6,
+      lastWorkoutDate:wktDates[wktDates.length-1],
+      recoverableStreak:0,inComeback:false,comebackWorkouts:0};
   } else {
-    data.streak={current:0,lastWorkoutDate:null,workoutsSinceRest:0,restCreditAvailable:false};
+    data.streak=_initStreak();
   }
   data.calendarMigrated=true;
   sd(data);
 }
 
+// ── Streak helpers ────────────────────────────────────────────────────────
+function _initStreak(){
+  return{workoutsTowardCredit:0,restCreditAvailable:true,lastWorkoutDate:null,
+         recoverableStreak:0,inComeback:false,comebackWorkouts:0};
+}
+
+// ── Calculate streak from calendar records (source of truth) ──────────────
+// Accepts a data object so we can compute before/after mutations
+function calculateStreakFromData(data){
+  const cal=data.calendar||{};
+  const s=data.streak||{};
+  const today=todayStr();
+  let streak=0,creditUsed=false;
+  const creditAvail=!!s.restCreditAvailable;
+  let cur=today,skippedToday=false;
+  for(let i=0;i<730;i++){
+    const t=(cal[cur]||{}).type;
+    if(t==='full'||t==='minimum'||t==='automatic_rest'){
+      streak++;
+    } else {
+      if(!skippedToday&&cur===today){
+        // Today not yet logged — skip, look back
+        skippedToday=true;cur=getPrevDate(cur);continue;
+      }
+      if(!creditUsed&&creditAvail){streak++;creditUsed=true;}
+      else break;
+    }
+    cur=getPrevDate(cur);
+  }
+  return streak;
+}
+function calculateCurrentStreak(){return calculateStreakFromData(gd());}
+
 // ── Update streak when a workout is completed ─────────────────────────────
 function updateStreakOnComplete(date,completionType,dayNum,hasPr){
   const data=gd();
   if(!data.calendar)data.calendar={};
-  if(!data.streak)data.streak={current:0,lastWorkoutDate:null,workoutsSinceRest:0,restCreditAvailable:false};
+  if(!data.streak)data.streak=_initStreak();
   const s=data.streak,cal=data.calendar;
+  const existing=cal[date]||{};
+  const wasSameDay=existing.type==='full'||existing.type==='minimum';
 
-  // Log workout in calendar
-  cal[date]={type:completionType,dayNum,hasPr:!!hasPr};
+  // Compute streak BEFORE adding this entry (to detect breaks accurately)
+  const streakBefore=wasSameDay?null:calculateStreakFromData(data);
 
-  const yesterday=getPrevDate(date);
-  const twoDaysAgo=getPrevDate(yesterday);
+  // Write calendar entry
+  cal[date]={type:completionType,dayNum,hasPr:hasPr||existing.hasPr||false};
 
-  if(!s.lastWorkoutDate||s.current===0){
-    s.current=1;s.workoutsSinceRest=1;s.restCreditAvailable=false;
-  } else if(s.lastWorkoutDate===date){
-    // Same day — already counted, just update
-    sd(data);return;
-  } else if(s.lastWorkoutDate===yesterday){
-    // Consecutive day — streak continues
-    s.current++;s.workoutsSinceRest++;
-  } else if(s.lastWorkoutDate===twoDaysAgo&&s.restCreditAvailable){
-    // One day gap — use auto-rest credit
-    cal[yesterday]={type:'automatic_rest'};
-    s.restCreditAvailable=false;
-    s.workoutsSinceRest=1; // new cycle starts
-    s.current++;
-  } else {
-    // Streak broken
-    s.current=1;s.workoutsSinceRest=1;s.restCreditAvailable=false;
+  if(!wasSameDay){
+    // Detect gap and apply rest credit
+    if(s.lastWorkoutDate&&s.lastWorkoutDate!==date){
+      const gap=daysBetweenDates(s.lastWorkoutDate,date);
+      if(gap===2){
+        // Exactly one missed day — try to use rest credit
+        const missedDate=addDaysToStr(s.lastWorkoutDate,1);
+        if(s.restCreditAvailable&&!cal[missedDate]){
+          cal[missedDate]={type:'automatic_rest'};
+          s.restCreditAvailable=false;
+          s.workoutsTowardCredit=0;
+        } else if(!s.restCreditAvailable&&(streakBefore||0)>0){
+          // No credit — streak breaks → start comeback
+          s.recoverableStreak=streakBefore;
+          s.inComeback=true;s.comebackWorkouts=0;
+        }
+      } else if(gap>2){
+        // Multiple missed days — streak breaks regardless of credit
+        if((streakBefore||0)>0||s.inComeback){
+          if(s.inComeback){
+            s.comebackWorkouts=0; // comeback failed, restart it
+          } else {
+            s.recoverableStreak=streakBefore;
+            s.inComeback=true;s.comebackWorkouts=0;
+          }
+        }
+      }
+    }
+
+    // Count this workout toward credit refill (6 workouts = 1 credit)
+    s.workoutsTowardCredit=(s.workoutsTowardCredit||0)+1;
+    if(s.workoutsTowardCredit>=6){s.restCreditAvailable=true;s.workoutsTowardCredit=0;}
+
+    // Comeback progress
+    if(s.inComeback){
+      s.comebackWorkouts=(s.comebackWorkouts||0)+1;
+      if(s.comebackWorkouts>=6){
+        // Comeback achieved — clear comeback state, streak recalculates from calendar
+        s.inComeback=false;s.recoverableStreak=0;s.comebackWorkouts=0;
+      }
+    }
+
+    s.lastWorkoutDate=date;
   }
-  s.lastWorkoutDate=date;
-  // Grant rest credit after 6 workouts in current cycle
-  if(s.workoutsSinceRest>=6&&!s.restCreditAvailable)s.restCreditAvailable=true;
   sd(data);
 }
 
@@ -1989,6 +2246,9 @@ function renderMonthCalendar(){
   const daysInMo=new Date(yr,mo+1,0).getDate();
   const isCurrentMonth=(yr===_now.getFullYear()&&mo===_now.getMonth());
 
+  // Feature 3: get current streak dates for connected styling
+  const _streakDates=getCurrentStreakDates();
+
   let cells='';
   for(let i=0;i<firstDow;i++)cells+=`<div class="cal-cell empty"></div>`;
   for(let d=1;d<=daysInMo;d++){
@@ -2005,11 +2265,24 @@ function renderMonthCalendar(){
     else if(entry.type==='automatic_rest'){cls+='rest-d';inner=`<span style="position:absolute;top:1px;right:2px;font-size:7px;opacity:0.55;">🌿</span>${d}`;}
     if(entry&&entry.hasPr)cls+=' had-pr';
     if(isToday)cls+=' today';
+    // Feature 3: connected streak bar
+    if(!isFuture&&_streakDates.has(ds)){
+      const dow=new Date(ds+'T00:00').getDay(); // 0=Sun..6=Sat
+      const prevDs=getPrevDate(ds);
+      const nextDs=addDaysToStr(ds,1);
+      const hasLeft=dow>0&&_streakDates.has(prevDs);
+      const hasRight=dow<6&&_streakDates.has(nextDs)&&nextDs<=today;
+      cls+=' csd ';
+      if(hasLeft&&hasRight)cls+='streak-mid';
+      else if(hasLeft)cls+='streak-right';
+      else if(hasRight)cls+='streak-left';
+      else cls+='streak-single';
+    }
     const oc=(isFuture||!entry&&isFuture)?'':`onclick="showDayInfo('${ds}',event)"`;
     cells+=`<div class="${cls}" ${oc}>${inner}</div>`;
   }
 
-  cont.innerHTML=`<div class="month-cal-card compact">
+  cont.innerHTML=`<div class="month-cal-card">
     <div class="month-cal-head">
       <button class="month-nav-btn" onclick="navigateMonth(-1)">‹</button>
       <span class="month-cal-title">${MONTHS[mo]} ${yr}</span>
@@ -2027,6 +2300,7 @@ function renderMonthCalendar(){
       <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--ivory2);border:1px solid var(--border)"></div>Rest</div>
       <div class="cal-leg-item"><div class="cal-leg-dot" style="border:1.5px dashed var(--border2)"></div>None</div>
       <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--olive);outline:2px solid var(--gold2);outline-offset:-1px;border-radius:3px;"></div>PR ✦</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--olive5);border:1px solid var(--olive4);border-radius:3px;"></div>Today</div>
     </div>
   </div>`;
 }
@@ -2192,7 +2466,12 @@ function deleteDayEntries(date){
     data.history[id]=(data.history[id]||[]).filter(e=>e.date!==date);
     if(!data.history[id].length)delete data.history[id];
   });
-  // Unmark day completion if it was in data.done
+  // Unmark day completion in cycle and legacy data.done
+  const calEntry=(data.calendar||{})[date];
+  const deletedDayNum=calEntry?calEntry.dayNum:null;
+  if(deletedDayNum&&data.currentCycle&&data.currentCycle.completed){
+    data.currentCycle.completed[deletedDayNum]=false;
+  }
   const wk=mondayOf(date);
   if(data.done&&data.done[wk]){
     const dt=new Date(date+'T00:00');
@@ -2228,24 +2507,19 @@ function _cascadeAfterDelete(date){
 function rebuildStreakFull(){
   const data=gd();
   const cal=data.calendar||{};
-  const today=todayStr();
-  let streak=0,wsRest=0,lastWkt=null;
-  let cur=today;
-  for(let i=0;i<365;i++){
-    const e=cal[cur];
-    const t=e?e.type:null;
-    if(t==='full'||t==='minimum'){streak++;wsRest++;if(!lastWkt)lastWkt=cur;}
-    else if(t==='automatic_rest'){/* rest days don't break streak */}
-    else{if(i===0){cur=getPrevDate(cur);continue;}break;}
-    cur=getPrevDate(cur);
-  }
+  // Preserve credit state, just update lastWorkoutDate
+  if(!data.streak)data.streak=_initStreak();
   const wktDates=Object.keys(cal).filter(d=>['full','minimum'].includes(cal[d].type)).sort();
-  data.streak={
-    current:streak,
-    lastWorkoutDate:wktDates.length?wktDates[wktDates.length-1]:null,
-    workoutsSinceRest:Math.min(wsRest,99),
-    restCreditAvailable:wsRest>=6
-  };
+  data.streak.lastWorkoutDate=wktDates.length?wktDates[wktDates.length-1]:null;
+  // Recount workoutsTowardCredit from recent history
+  let wCount=0;
+  for(let i=wktDates.length-1;i>=0&&wCount<6;i--){
+    const prev=i>0?wktDates[i-1]:null;
+    if(!prev||daysBetweenDates(prev,wktDates[i])===1)wCount++;
+    else break;
+  }
+  data.streak.workoutsTowardCredit=wCount%6;
+  if(wCount>=6)data.streak.restCreditAvailable=true;
   sd(data);
   updateDash();
 }
@@ -2372,14 +2646,11 @@ function buildWorkout(){
       :(isMin?'Complete Minimum Version':'Complete Day '+day.day);
     const completeBtnClass='complete-btn'+(done?' done-state':'')+(isMin&&!done?' min-complete-btn':'');
 
+    const _yestDone=(gd().calendar||{})[getPrevDate(todayStr())];
+    const _showYest=!isDone(day.day)&&!_yestDone;
     html+=`<div class="complete-wrap">
-      <button class="${completeBtnClass}" id="cbtn-${day.day}" onclick="completeDay(${day.day},event,'${isMin?'minimum':'full'}')">${completeBtnLabel}</button>
-    </div>
-    <div class="cardio-section">
-      <label class="cardio-wrap${cardioDone?' done-cardio':''}" id="cardio-wrap-${day.day}" onclick="toggleCardioStorage(${day.day})">
-        <div class="cardio-circle${cardioDone?' checked':''}" id="cardio-circle-${day.day}">${cardioDone?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
-        <div class="cardio-info"><div class="cardio-title">20 min cardio</div><div class="cardio-sub">Treadmill incline or bike after lifting</div></div>
-      </label>
+      <button class="${completeBtnClass}" id="cbtn-${day.day}" onclick="completeDay(${day.day},event,'${isMin?'minimum':'full'}','today')">${completeBtnLabel}</button>
+      ${_showYest?`<button class="log-yest-btn" onclick="completeDay(${day.day},event,'${isMin?'minimum':'full'}','yesterday')">Did this yesterday? Log for yesterday</button>`:''}
     </div>`;
     panel.innerHTML=html;cont.appendChild(panel);
   });
@@ -2453,12 +2724,44 @@ function refreshHint(id,rMax){
 }
 
 
-function completeDay(dayNum,event,completionType){
+function completeDay(dayNum,event,completionType,dateOpt){
   completionType=completionType||'full';
+  dateOpt=dateOpt||'today';
+  const targetDate=dateOpt==='yesterday'?getPrevDate(todayStr()):todayStr();
+  const isMin=completionType==='minimum';
+
+  // For "today": toggle behavior. For "yesterday": always complete (no toggle)
+  const calEntry=(gd().calendar||{})[targetDate];
+  const alreadyDoneForDate=calEntry&&(calEntry.type==='full'||calEntry.type==='minimum');
+
+  if(dateOpt==='yesterday'){
+    if(alreadyDoneForDate){showToast('Already logged for yesterday');return;}
+    // Mark in data.done for the correct week
+    const data=gd();
+    // Update cycle completion
+    if(!data.currentCycle)data.currentCycle=_initCycle();
+    data.currentCycle.completed[dayNum]=completionType;
+    // Legacy data.done
+    if(!data.done)data.done={};
+    const yestWk=mondayOf(targetDate);
+    if(!data.done[yestWk])data.done[yestWk]={};
+    data.done[yestWk][dayNum]=completionType;
+    sd(data);
+    checkCycleComplete();
+    const prs=getDayPRs(dayNum);
+    updateStreakOnComplete(targetDate,completionType,dayNum,prs.length>0);
+    updateDash();
+    buildWorkout();
+    showToast('Logged for yesterday ✓');
+    renderMonthCalendar();
+    return;
+  }
+
+  // Normal "today" toggle flow
   const was=isDone(dayNum);
   markDone(dayNum,!was?completionType:false);
+  if(!was)checkCycleComplete(); // check after marking done, not after un-marking
   const btn=document.getElementById(`cbtn-${dayNum}`);
-  const isMin=completionType==='minimum';
   if(btn){
     btn.className='complete-btn'+(!was?' done-state':'');
     btn.textContent=!was?(isMin?'✓ Minimum Done':'✓ Day Complete'):`Complete Day ${dayNum}`;
@@ -2471,8 +2774,11 @@ function completeDay(dayNum,event,completionType){
   });
   updateDash();
   if(!was){
+    const _oldStreak=calculateCurrentStreak();
     const prs=getDayPRs(dayNum);
-    updateStreakOnComplete(todayStr(), completionType, dayNum, prs.length>0);
+    updateStreakOnComplete(todayStr(),completionType,dayNum,prs.length>0);
+    const _newStreak=calculateCurrentStreak();
+    checkAndShowTierUp(_oldStreak,_newStreak);
     celebrate(event,dayNum,prs,completionType);
   }
 }
@@ -2654,13 +2960,31 @@ function updateDash(){
   document.getElementById('dash-greeting').textContent=(h<12?'Good morning,':h<17?'Good afternoon,':'Good evening,')+' Pingus';
   document.getElementById('dash-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   document.getElementById('s-week').textContent=`${weekCnt()}/6`;
-  // Update streak card
-  const sData=(gd().streak)||{current:0};
-  const tier=getStreakTier(sData.current||0);
+  // Update streak card — always derived from calendar
+  const _sData=gd().streak||{};
+  const _streak=calculateCurrentStreak();
+  const tier=getStreakTier(_streak);
   const sEl=document.getElementById('s-streak');
   const sIcon=document.getElementById('s-streak-icon');
-  if(sEl)sEl.textContent=sData.current||0;
+  if(sEl)sEl.textContent=_streak;
   if(sIcon){sIcon.textContent=tier.icon;sIcon.className='s-streak-tier-icon '+tier.cls;}
+  // Apply tier-specific card class for visual evolution (Feature 1)
+  const _sCard=document.getElementById('streak-stat-card');
+  if(_sCard)_sCard.className='stat-card streak-stat-card '+tier.cardCls;
+  // Comeback banner
+  const _cb=document.getElementById('comeback-banner');
+  if(_cb){
+    if(_sData.inComeback){
+      const pct=Math.round(((_sData.comebackWorkouts||0)/6)*100);
+      _cb.style.display='block';
+      _cb.innerHTML=`<div class="comeback-card">
+        <div class="comeback-title">Streak paused — but not gone yet. ✦</div>
+        <div class="comeback-sub">Complete 6 workouts to restore your ${_sData.recoverableStreak}-day streak.<br>
+          ${_sData.comebackWorkouts||0}/6 workouts done.</div>
+        <div class="comeback-prog"><div class="comeback-prog-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    } else {_cb.style.display='none';}
+  }
   document.getElementById('s-wnum').textContent=`W${weekNum()}`;
 
   const mon=new Date(now);mon.setDate(now.getDate()-dow+(dow===0?-6:1));
@@ -2669,9 +2993,12 @@ function updateDash(){
   document.getElementById('wc-dates').textContent=`${fmt(mon)} – ${fmt(sun)}`;
 
   const sug=sugDay(),grid=document.getElementById('dash-grid');
+  const _cc=gd().currentCycle||{};
+  const _awaitingReset=!!_cc.awaitingReset;
+  const _nextCycleNum=(_cc.cycleNum||1)+1;
   grid.innerHTML='';
   PROGRAM.forEach((d,i)=>{
-    const done=isDone(d.day),isT=i===sug;
+    const done=isDone(d.day),isT=(!_awaitingReset&&i===sug);
     const btn=document.createElement('button');
     btn.className='day-btn'+(done?' done':'')+(isT?' today':'');
     btn.onclick=()=>{showPage('workout',document.querySelectorAll('nav button')[1]);setTimeout(()=>switchDay(i),50);};
@@ -2680,16 +3007,30 @@ function updateDash(){
     grid.appendChild(btn);
   });
 
+  // Cycle-complete banner
+  const _banner=document.getElementById('cycle-complete-banner');
+  if(_banner){
+    if(_awaitingReset){
+      _banner.style.display='block';
+      _banner.innerHTML=`<div class="cycle-done-card">
+        <span class="cycle-done-icon">🏛️</span>
+        <div class="cycle-done-title">Cycle ${_cc.cycleNum} Complete</div>
+        <div class="cycle-done-sub">All six workouts done. Next up: Day 1.</div>
+        <button class="cycle-done-btn" onclick="startNewCycle()">Begin Cycle ${_nextCycleNum} →</button>
+      </div>`;
+    } else {
+      _banner.style.display='none';
+    }
+  }
+
   renderDashMessage();
   renderMonthCalendar();
 }
 
 function renderDashMessage(){
   const cont=document.getElementById('dash-message');
-  const wn=weekNum();
-  if(wn<=1){
-    // Show full intro message
-    cont.innerHTML=`<div class="intro-card">
+  if(!cont)return;
+  cont.innerHTML=`<div class="intro-card">
       <div class="intro-greeting">Hey sweet pea ❤️</div>
       <div class="intro-body">
         <p>I made this for you so you can easily track your workouts, see your progress over time, and hopefully feel proud of yourself as you get stronger. I love you so much, and I'm so proud of you for trying this out.</p>
@@ -2705,15 +3046,6 @@ function renderDashMessage(){
       </div>
       <div class="intro-signoff">I love you forever.<br>Dingus</div>
     </div>`;
-  } else {
-    // Rotating daily message
-    const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));
-    const msg=DAILY_MSGS[dayOfYear%DAILY_MSGS.length];
-    cont.innerHTML=`<div class="daily-card">
-      <div class="daily-icon">${msg.icon}</div>
-      <div class="daily-text">${msg.text}</div>
-    </div>`;
-  }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -2832,6 +3164,7 @@ function resetData(){localStorage.removeItem(SK);closeConfirm();showToast('Data 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
 document.addEventListener('DOMContentLoaded',()=>{
+  ensureCurrentCycle();
   migrateCalendarData();
   initTheme();
   updateDash();
@@ -2875,6 +3208,18 @@ if('serviceWorker' in navigator){
     <button class="edit-close-btn" onclick="closeEditSheet()">✕</button>
   </div>
   <div class="edit-form-body" id="edit-form-body"></div>
+</div>
+
+<!-- TIER-UP CELEBRATION -->
+<div class="tier-up-overlay" id="tier-up-overlay" onclick="closeTierUp()">
+  <div class="tier-up-card" onclick="event.stopPropagation()">
+    <span class="tier-up-icon-wrap" id="tier-up-icon-wrap">🌿</span>
+    <div class="tier-up-headline">Streak Level Up ✦</div>
+    <div class="tier-up-tier-name" id="tier-up-tier-name">Growing Sprig Unlocked</div>
+    <div class="tier-up-streak-count" id="tier-up-streak-count">3 day streak</div>
+    <div class="tier-up-tagline">The streak grows stronger.</div>
+    <button class="tier-up-close" onclick="closeTierUp()">Keep going 🌿</button>
+  </div>
 </div>
 
 </body>
