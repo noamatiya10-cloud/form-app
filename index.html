@@ -82,18 +82,18 @@ body.dark::after{
 .photo-thumb-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.55);border:none;border-radius:50%;width:22px;height:22px;color:white;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .photo-count-note{font-size:11px;color:var(--ink3);text-align:center;padding:4px 0;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Outfit',sans-serif;background:var(--ivory);color:var(--ink);min-height:100vh;overflow-x:hidden;
+html,body{height:100%;}body{font-family:'Outfit',sans-serif;background:var(--ivory);color:var(--ink);overflow:hidden;display:flex;flex-direction:column;
   background-image:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(168,200,120,0.12) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(184,146,10,0.07) 0%,transparent 60%);}
 
 /* ── NAV ── */
-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(255,254,250,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1.5px solid var(--olive4);display:flex;padding-bottom:max(env(safe-area-inset-bottom,0px),8px);}
+.page-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}nav{position:relative;z-index:200;background:rgba(255,254,250,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1.5px solid var(--olive4);display:flex;padding-bottom:max(env(safe-area-inset-bottom,0px),8px);}
 nav::before{content:'';position:absolute;top:-3px;left:0;right:0;height:3px;background:repeating-linear-gradient(90deg,var(--olive3) 0px,var(--olive3) 6px,var(--ivory) 6px,var(--ivory) 9px,var(--olive3) 9px,var(--olive3) 12px,var(--ivory) 12px,var(--ivory) 15px,var(--olive3) 15px,var(--olive3) 18px,var(--ivory) 18px,var(--ivory) 24px);opacity:0.7;}
 nav button{flex:1;background:none;border:none;color:var(--ink4);padding:14px 4px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.4px;transition:color 0.2s;min-height:62px;}
 nav button.active{color:var(--olive);}
 nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:none;}
 
 /* ── PAGES ── */
-.page{display:none;padding:0 0 86px;min-height:100vh;}
+.page{display:none;padding:0 0 86px;}
 .page.active{display:block;}
 
 /* ── PAGE HEADER ── */
@@ -551,6 +551,14 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
 .ex-photo-replace{background:var(--ivory);border:1.5px solid var(--border);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:500;font-family:'Outfit',sans-serif;color:var(--ink2);cursor:pointer;display:inline-block;}
 .ex-photo-remove{background:none;border:none;font-size:11px;color:var(--ink3);cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:underline;padding:0;}
 .ex-file-in{position:fixed;opacity:0;width:1px;height:1px;pointer-events:none;}
+
+/* ── PHOTO HIDE TOGGLE ── */
+.photo-hidden-state{background:var(--ivory);border:1.5px dashed var(--border2);border-radius:12px;padding:20px;text-align:center;margin-bottom:8px;}
+.photo-hidden-icon{font-size:28px;display:block;margin-bottom:6px;}
+.photo-hidden-lbl{font-size:13px;color:var(--ink2);margin-bottom:12px;display:block;}
+.photo-reveal-btn{background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:8px 18px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--ink2);cursor:pointer;}
+.photo-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:0 0 6px;}
+.photo-hide-btn{background:none;border:none;font-family:'Outfit',sans-serif;font-size:11px;color:var(--ink3);cursor:pointer;text-decoration:underline;padding:0;}
 /* ── SETTINGS ── */
 .settings-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
 .settings-item{display:flex;align-items:flex-start;padding:16px;border-bottom:1px solid var(--border);}
@@ -688,7 +696,7 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
 </style>
 </head>
 <body>
-
+<div class="page-area">
 <!-- ════ DASHBOARD ════ -->
 <div id="page-dashboard" class="page active">
   <div class="ph">
@@ -817,6 +825,8 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
   <input type="file" id="importIn" accept=".json" onchange="importData(event)">
   <input type="file" id="photoUploadIn" accept="image/*" multiple onchange="handlePhotoUpload(event)">
 </div>
+
+</div><!-- /page-area -->
 
 <!-- NAV -->
 <nav>
@@ -2271,6 +2281,13 @@ async function clearAllPhotos(){
   showToast('All photos deleted');
 }
 
+// Photo visibility toggle — default hidden so they're a surprise
+function _photosRevealed(){return localStorage.getItem('form_photos_shown')==='true';}
+function togglePhotoVisibility(){
+  localStorage.setItem('form_photos_shown',_photosRevealed()?'false':'true');
+  renderPhotoGrid();
+}
+
 // Render photo grid in Settings
 async function renderPhotoGrid(){
   const grid=document.getElementById('photo-grid');
@@ -2278,6 +2295,7 @@ async function renderPhotoGrid(){
   if(!grid)return;
   let photos=[];
   try{photos=await _idbGetAll();}catch(e){if(note)note.textContent='Error loading photos.';return;}
+
   if(!photos.length){
     grid.innerHTML='';
     if(note)note.textContent='No photos yet — tap above to add some.';
@@ -2285,9 +2303,26 @@ async function renderPhotoGrid(){
   }
   const totalBytes=photos.reduce((s,p)=>s+(p.size||0),0);
   const totalMB=(totalBytes/(1024*1024)).toFixed(1);
+
+  if(!_photosRevealed()){
+    // Hidden state — show count but not the actual photos
+    grid.innerHTML=`<div class="photo-hidden-state">
+      <span class="photo-hidden-icon">🌿</span>
+      <span class="photo-hidden-lbl">${photos.length} photo${photos.length!==1?'s':''} saved · ~${totalMB} MB</span>
+      <button class="photo-reveal-btn" onclick="togglePhotoVisibility()">Reveal photos to manage</button>
+    </div>`;
+    if(note)note.textContent='Photos are hidden — tap above to reveal.';
+    return;
+  }
+
+  // Revealed state — show grid with hide button
   if(note)note.textContent=`${photos.length}/50 photos · ~${totalMB} MB used`;
-  // Render thumbnails — create object URLs, revoke after img loads
+  const row=document.createElement('div');
+  row.className='photo-toggle-row';
+  row.innerHTML=`<span style="font-size:11px;color:var(--ink3)">${photos.length}/50 photos saved</span>
+    <button class="photo-hide-btn" onclick="togglePhotoVisibility()">Hide photos</button>`;
   grid.innerHTML='';
+  grid.appendChild(row);
   photos.forEach(photo=>{
     const objUrl=URL.createObjectURL(photo.blob);
     const wrap=document.createElement('div');
