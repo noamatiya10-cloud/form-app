@@ -14,7 +14,7 @@
 <link rel="icon" type="image/jpeg" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMCIgZmlsbD0iI0Y3RjNFMyIvPgogIDx0ZXh0IHg9IjI1NiIgeT0iMzYwIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIzNDAiIGZvbnQtd2VpZ2h0PSI0MDAiIAogICAgZmlsbD0iI0I4OTIwQSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UDwvdGV4dD4KICA8ZWxsaXBzZSBjeD0iMjMwIiBjeT0iMzEwIiByeD0iMTIiIHJ5PSIzMCIgZmlsbD0iIzVDN0EzOCIgdHJhbnNmb3JtPSJyb3RhdGUoLTM1IDIzMCAzMTApIi8+CiAgPGVsbGlwc2UgY3g9IjIxMCIgY3k9IjM0MCIgcng9IjExIiByeT0iMjgiIGZpbGw9IiM1QzdBMzgiIHRyYW5zZm9ybT0icm90YXRlKC0yNSAyMTAgMzQwKSIvPgogIDxlbGxpcHNlIGN4PSIyMjAiIGN5PSIzNzAiIHJ4PSIxMCIgcnk9IjI0IiBmaWxsPSIjNUM3QTM4IiB0cmFuc2Zvcm09InJvdGF0ZSgtMTUgMjIwIDM3MCkiLz4KPC9zdmc+">
 <title>FORM</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onerror="window._chartFailed=true" crossorigin="anonymous"></script>
 <style>
 :root{
   --ivory:#F7F3E3; --ivory2:#EEE8CC; --white:#FFFEFA; --parch:#F2EDD5;
@@ -786,6 +786,7 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
     </div>
     <div class="photo-grid" id="photo-grid"></div>
     <div class="photo-count-note" id="photo-count-note"></div>
+    <button onclick="clearAllPhotos()" style="display:block;background:none;border:none;font-family:'Outfit',sans-serif;font-size:11px;color:var(--ink3);text-decoration:underline;cursor:pointer;padding:4px 16px 0;text-align:left;">Clear all photos</button>
 
     <div class="slbl">Workout Log</div>
     <div id="workout-log-list" style="margin-bottom:18px;"><div class="log-empty">No entries yet.</div></div>
@@ -1773,6 +1774,7 @@ function renderOverviewChart(){
 
   const ctx=document.getElementById('overview-chart')?.getContext('2d');
   if(!ctx)return;
+  if(typeof Chart==='undefined'){ctx.clearRect(0,0,9999,9999);ctx.fillStyle='#B8B298';ctx.font='13px Outfit';ctx.textAlign='center';ctx.fillText('Charts load when online',ctx.canvas.width/2,80);return;}
   if(overviewChart)overviewChart.destroy();
 
   const isLine=overviewView==='alltime';
@@ -1948,77 +1950,203 @@ function toggleTheme(){
 // ════════════════════════════════════════════════════════════════════════════
 //  PHOTO STORAGE (localStorage, no file size impact)
 // ════════════════════════════════════════════════════════════════════════════
-const PHOTO_KEY='form_photos';
+// ════════════════════════════════════════════════════════════════════════════
+//  PHOTO STORAGE — IndexedDB (replaces localStorage base64 approach)
+// ════════════════════════════════════════════════════════════════════════════
 
-function getStoredPhotos(){
-  try{return JSON.parse(localStorage.getItem(PHOTO_KEY)||'[]');}catch{return[];}
+const _PHOTO_DB='form_photo_db',_PHOTO_STORE='photos';
+
+function _openPhotoDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(_PHOTO_DB,1);
+    req.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains(_PHOTO_STORE)){
+        db.createObjectStore(_PHOTO_STORE,{keyPath:'id',autoIncrement:true});
+      }
+    };
+    req.onsuccess=e=>resolve(e.target.result);
+    req.onerror=()=>reject(req.error);
+  });
 }
 
-function handlePhotoUpload(event){
+async function _idbGetAll(){
+  const db=await _openPhotoDB();
+  return new Promise((resolve,reject)=>{
+    const req=db.transaction(_PHOTO_STORE,'readonly').objectStore(_PHOTO_STORE).getAll();
+    req.onsuccess=()=>resolve(req.result||[]);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function _idbAdd(record){
+  const db=await _openPhotoDB();
+  return new Promise((resolve,reject)=>{
+    const req=db.transaction(_PHOTO_STORE,'readwrite').objectStore(_PHOTO_STORE).add(record);
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function _idbDelete(id){
+  const db=await _openPhotoDB();
+  return new Promise((resolve,reject)=>{
+    const req=db.transaction(_PHOTO_STORE,'readwrite').objectStore(_PHOTO_STORE).delete(id);
+    req.onsuccess=()=>resolve();
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function _idbClear(){
+  const db=await _openPhotoDB();
+  return new Promise((resolve,reject)=>{
+    const req=db.transaction(_PHOTO_STORE,'readwrite').objectStore(_PHOTO_STORE).clear();
+    req.onsuccess=()=>resolve();
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+// Compress image to max 1200px WebP 0.8 (fallback JPEG 0.78)
+function _compressPhoto(file){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    const objUrl=URL.createObjectURL(file);
+    img.onload=()=>{
+      URL.revokeObjectURL(objUrl);
+      const MAX=1200;
+      let w=img.naturalWidth,h=img.naturalHeight;
+      if(w>MAX||h>MAX){
+        if(w>h){h=Math.round(h*MAX/w);w=MAX;}
+        else{w=Math.round(w*MAX/h);h=MAX;}
+      }
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      // Try WebP first
+      canvas.toBlob(blob=>{
+        if(blob&&blob.type==='image/webp'&&blob.size>0){
+          resolve({blob,mimeType:'image/webp'});
+        } else {
+          // Fallback to JPEG
+          canvas.toBlob(jblob=>{
+            resolve({blob:jblob,mimeType:'image/jpeg'});
+          },'image/jpeg',0.78);
+        }
+      },'image/webp',0.80);
+    };
+    img.onerror=reject;
+    img.src=objUrl;
+  });
+}
+
+// One-time migration: move any existing localStorage photos to IndexedDB
+async function migratePhotosToIndexedDB(){
+  try{
+    const lsKey='form_photos';
+    const lsData=localStorage.getItem(lsKey);
+    if(!lsData)return;
+    const lsPhotos=JSON.parse(lsData);
+    if(!lsPhotos.length){localStorage.removeItem(lsKey);return;}
+    const existing=await _idbGetAll();
+    if(existing.length){localStorage.removeItem(lsKey);return;} // already migrated
+    for(const dataUrl of lsPhotos){
+      try{
+        const res=await fetch(dataUrl);
+        const blob=await res.blob();
+        await _idbAdd({blob,mimeType:blob.type||'image/jpeg',filename:'photo',createdAt:Date.now(),size:blob.size});
+      }catch(e){/* skip failed */}
+    }
+    localStorage.removeItem(lsKey);
+  }catch(e){/* migration is best-effort */}
+}
+
+// Upload handler — compress then store in IndexedDB
+async function handlePhotoUpload(event){
   const files=Array.from(event.target.files);
+  event.target.value='';
   if(!files.length)return;
-  const existing=getStoredPhotos();
+  const existing=await _idbGetAll();
   const remaining=50-existing.length;
   if(remaining<=0){showToast('Max 50 photos reached');return;}
   const toLoad=files.slice(0,remaining);
-  let done=0;
-  const results=[];
-  toLoad.forEach((file,i)=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      results[i]=e.target.result;
-      done++;
-      if(done===toLoad.length){
-        const final=existing.concat(results.filter(Boolean));
-        try{
-          localStorage.setItem(PHOTO_KEY,JSON.stringify(final));
-          renderPhotoGrid();
-          showToast(`${done} photo${done>1?'s':''} added ✓`);
-        }catch(err){
-          // localStorage full — try storing fewer
-          showToast('Storage full — try fewer or smaller photos');
-        }
+  showToast(`Saving ${toLoad.length} photo${toLoad.length>1?'s':''}…`);
+  let added=0;
+  for(const file of toLoad){
+    try{
+      const {blob,mimeType}=await _compressPhoto(file);
+      await _idbAdd({blob,mimeType,filename:file.name||'photo',createdAt:Date.now(),size:blob.size});
+      added++;
+    }catch(err){
+      if(err&&(err.name==='QuotaExceededError'||err.code===22)){
+        showToast('Photo storage is full. Try deleting a few photos or uploading smaller ones.');
+        break;
       }
-    };
-    reader.readAsDataURL(file);
-  });
-  event.target.value='';
+    }
+  }
+  if(added>0){renderPhotoGrid();showToast(`${added} photo${added>1?'s':''} added ✓`);}
 }
 
-function deletePhoto(idx){
-  const photos=getStoredPhotos();
-  photos.splice(idx,1);
-  localStorage.setItem(PHOTO_KEY,JSON.stringify(photos));
+// Delete individual photo by IndexedDB id
+async function deletePhoto(id){
+  await _idbDelete(id);
   renderPhotoGrid();
 }
 
-function renderPhotoGrid(){
+// Clear all photos with confirmation
+async function clearAllPhotos(){
+  if(!confirm('Delete all celebration photos? This cannot be undone.'))return;
+  await _idbClear();
+  localStorage.removeItem('form_last_photo_id');
+  renderPhotoGrid();
+  showToast('All photos deleted');
+}
+
+// Render photo grid in Settings
+async function renderPhotoGrid(){
   const grid=document.getElementById('photo-grid');
   const note=document.getElementById('photo-count-note');
-  const photos=getStoredPhotos();
   if(!grid)return;
+  let photos=[];
+  try{photos=await _idbGetAll();}catch(e){if(note)note.textContent='Error loading photos.';return;}
   if(!photos.length){
     grid.innerHTML='';
     if(note)note.textContent='No photos yet — tap above to add some.';
     return;
   }
-  grid.innerHTML=photos.map((src,i)=>`
-    <div class="photo-thumb-wrap">
-      <img src="${src}" alt="">
-      <button class="photo-thumb-del" onclick="deletePhoto(${i})">✕</button>
-    </div>`).join('');
-  if(note)note.textContent=`${photos.length}/50 photo${photos.length!==1?'s':''} — shown randomly on day complete`;
+  const totalBytes=photos.reduce((s,p)=>s+(p.size||0),0);
+  const totalMB=(totalBytes/(1024*1024)).toFixed(1);
+  if(note)note.textContent=`${photos.length}/50 photos · ~${totalMB} MB used`;
+  // Render thumbnails — create object URLs, revoke after img loads
+  grid.innerHTML='';
+  photos.forEach(photo=>{
+    const objUrl=URL.createObjectURL(photo.blob);
+    const wrap=document.createElement('div');
+    wrap.className='photo-thumb-wrap';
+    const img=document.createElement('img');
+    img.alt='';
+    img.onload=()=>URL.revokeObjectURL(objUrl);
+    img.src=objUrl;
+    const del=document.createElement('button');
+    del.className='photo-thumb-del';
+    del.textContent='✕';
+    del.onclick=()=>deletePhoto(photo.id);
+    wrap.appendChild(img);wrap.appendChild(del);
+    grid.appendChild(wrap);
+  });
 }
 
-function getRandomPhoto(){
-  const pool=[...getStoredPhotos(),...PHOTO_BANK];
-  if(!pool.length)return null;
-  if(pool.length===1)return pool[0];
-  const lastIdx=parseInt(localStorage.getItem('form_last_photo')??'-1');
-  const available=pool.map((_,i)=>i).filter(i=>i!==lastIdx);
-  const idx=(available.length?available:pool.map((_,i)=>i))[Math.floor(Math.random()*(available.length||pool.length))];
-  localStorage.setItem('form_last_photo',String(idx));
-  return pool[idx];
+// Pick a random photo from IndexedDB, avoiding the last shown
+async function getRandomPhoto(){
+  try{
+    const photos=await _idbGetAll();
+    if(!photos.length)return null;
+    if(photos.length===1)return photos[0];
+    const lastId=parseInt(localStorage.getItem('form_last_photo_id')??'-1');
+    const pool=photos.filter(p=>p.id!==lastId);
+    const chosen=(pool.length?pool:photos)[Math.floor(Math.random()*(pool.length||photos.length))];
+    localStorage.setItem('form_last_photo_id',String(chosen.id));
+    return chosen;
+  }catch(e){return null;}
 }
 
 
@@ -2896,6 +3024,7 @@ function renderProgChart(){
   const ctx=document.getElementById('prog-chart').getContext('2d');
   if(progChart)progChart.destroy();
 
+  if(typeof Chart==='undefined'){ctx.clearRect(0,0,9999,9999);ctx.fillStyle='#B8B298';ctx.font='13px Outfit';ctx.textAlign='center';ctx.fillText('Charts load when online',ctx.canvas.width/2,80);return;}
   progChart=new Chart(ctx,{
     type:'line',
     data:{labels,datasets},
@@ -3061,19 +3190,23 @@ function celebrate(event,dayNum,prs,completionType){
   setTimeout(()=>showPhotoModal(dayNum,prs||[],completionType),600);
 }
 
-function showPhotoModal(dayNum,prs,completionType){
+async function showPhotoModal(dayNum,prs,completionType){
   prs=prs||[];completionType=completionType||'full';
   const isFullCycle=(weekCnt()>=6);
   const isWeekComplete=(dayNum===6&&isFullCycle);
+  const dayLabel=isFullCycle?'Cycle Complete ✦':`Day ${dayNum} Complete ✦`;
 
   const subText=getCelebMsg(dayNum,prs,isFullCycle,completionType);
 
-  // Photo — X button overlaid in top-right of wrap
+  // Photo from IndexedDB — create object URL, store for cleanup
   const wrap=document.getElementById('celeb-photo-wrap');
-  const photoSrc=getRandomPhoto();
-  if(photoSrc){
-    wrap.innerHTML=`<img src="${photoSrc}" alt=""><button class="celeb-close" onclick="closePhotoModal()">✕</button>`;
+  const photoEntry=await getRandomPhoto();
+  if(photoEntry&&photoEntry.blob){
+    const objUrl=URL.createObjectURL(photoEntry.blob);
+    wrap._celebObjUrl=objUrl; // store for revoke on close
+    wrap.innerHTML=`<img src="${objUrl}" alt=""><button class="celeb-close" onclick="closePhotoModal()">✕</button>`;
   } else {
+    wrap._celebObjUrl=null;
     wrap.innerHTML=`<div class="celeb-no-photo"><span style="font-size:36px;">${isFullCycle?'🏆':prs.length?'🔥':'🌿'}</span><span>${dayLabel}</span></div><button class="celeb-close" onclick="closePhotoModal()">✕</button>`;
   }
 
@@ -3083,7 +3216,6 @@ function showPhotoModal(dayNum,prs,completionType){
     prHtml=`<div class="celeb-pr-summary"><div class="celeb-pr-title">✦ New Personal Records</div>${prs.map(p=>`<div class="celeb-pr-row"><span>${p.weightPR?'🏆':'📈'}</span><span>${p.name}${p.weightPR?' · '+p.weight+' lb':''}${p.repsPR?' · '+p.reps+' reps':''}</span></div>`).join('')}</div>`;
   }
   if(isFullCycle){prHtml+=`<div class="celeb-week-tag">Full workout complete!</div>`;}
-  const dayLabel=isFullCycle?'Cycle Complete ✦':`Day ${dayNum} Complete ✦`;
   document.getElementById('celeb-body').innerHTML=`
     <div class="celeb-day-text">${dayLabel}</div>
     <div class="celeb-sub">${subText}</div>
@@ -3103,6 +3235,9 @@ function showPhotoModal(dayNum,prs,completionType){
 }
 
 function closePhotoModal(){
+  // Revoke object URL to free memory
+  const wrap=document.getElementById('celeb-photo-wrap');
+  if(wrap&&wrap._celebObjUrl){URL.revokeObjectURL(wrap._celebObjUrl);wrap._celebObjUrl=null;}
   const backdrop=document.getElementById('celeb-backdrop');
   const sheet=document.getElementById('celeb-sheet');
   sheet.classList.remove('open');
@@ -3166,6 +3301,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 document.addEventListener('DOMContentLoaded',()=>{
   ensureCurrentCycle();
   migrateCalendarData();
+  migratePhotosToIndexedDB();
   initTheme();
   updateDash();
   buildWorkout();
@@ -3175,26 +3311,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 <script>
+// Unregister any old broken service workers that may have cached a bad state
 if('serviceWorker' in navigator){
-  // Inline service worker as blob — caches everything for offline use
-  const swCode = `
-    const CACHE='form-v1';
-    const URLS=['/'];
-    self.addEventListener('install',e=>{
-      e.waitUntil(caches.open(CACHE).then(c=>c.addAll([])));
-      self.skipWaiting();
-    });
-    self.addEventListener('activate',e=>{
-      e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-      self.clients.claim();
-    });
-    self.addEventListener('fetch',e=>{
-      e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>new Response('Offline'))));
-    });
-  `;
-  const blob = new Blob([swCode],{type:'application/javascript'});
-  const url = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(url).catch(()=>{});
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister());
+  }).catch(()=>{});
 }
 </script>
 
