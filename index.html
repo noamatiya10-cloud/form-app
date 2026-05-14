@@ -559,6 +559,31 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
 .photo-reveal-btn{background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:8px 18px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--ink2);cursor:pointer;}
 .photo-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:0 0 6px;}
 .photo-hide-btn{background:none;border:none;font-family:'Outfit',sans-serif;font-size:11px;color:var(--ink3);cursor:pointer;text-decoration:underline;padding:0;}
+
+/* ── TIMER FLASH SCREEN ── */
+@keyframes timerFlash{
+  0%,49%{background:#3D5426;color:#F7F3E3;}
+  50%,99%{background:#F7F3E3;color:#3D5426;}
+}
+@media(prefers-reduced-motion:reduce){
+  @keyframes timerFlash{
+    0%,100%{background:#3D5426;opacity:1;}
+    50%{background:#3D5426;opacity:0.65;}
+  }
+  #timer-flash-overlay .timer-flash-text{color:#F7F3E3;}
+}
+#timer-flash-overlay{
+  position:fixed;inset:0;z-index:9999;
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;animation:timerFlash 0.72s step-start infinite;
+}
+#timer-flash-overlay.active{display:flex;}
+.timer-flash-text{
+  font-family:'Outfit',sans-serif;font-size:56px;font-weight:900;
+  letter-spacing:8px;text-align:center;
+  user-select:none;pointer-events:none;
+  line-height:1.2;
+}
 /* ── SETTINGS ── */
 .settings-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
 .settings-item{display:flex;align-items:flex-start;padding:16px;border-bottom:1px solid var(--border);}
@@ -666,6 +691,8 @@ nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.6;fill:
 }
 .min-notice-icon{font-size:14px;flex-shrink:0;}
 .session-notes-wrap{margin:0 16px 10px;}
+.snote-label{font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:2px;}
+.snote-hint{font-size:12px;color:var(--ink3);font-style:italic;margin-bottom:7px;line-height:1.45;}
 .session-notes-field{width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:13px 15px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink2);resize:none;min-height:44px;box-shadow:var(--shadow);transition:border-color 0.2s,min-height 0.2s;}
 .session-notes-field:focus{outline:none;border-color:var(--gold2);color:var(--ink);min-height:72px;}
 .session-notes-field::placeholder{color:var(--ink4);font-style:italic;}
@@ -1080,16 +1107,17 @@ function randNR(arr, key){
 }
 
 // Check if she's returning after 2+ missed days
+// Uses calendar records (not e.completed which is never set true)
 function isReturningAfterBreak(){
-  const history=gd().history||{};
-  const allDates=new Set();
-  Object.values(history).forEach(entries=>entries.forEach(e=>{ if(e.completed) allDates.add(e.date); }));
+  const cal=gd().calendar||{};
   const today=todayStr();
-  const sorted=[...allDates].filter(d=>d<today).sort();
-  if(!sorted.length) return false;
-  const lastDate=sorted[sorted.length-1];
-  const diffDays=Math.round((new Date(today)-new Date(lastDate))/(1000*60*60*24));
-  return diffDays>=3; // missed 2+ days
+  const wktDates=Object.keys(cal)
+    .filter(d=>d<today&&(cal[d].type==='full'||cal[d].type==='minimum'))
+    .sort();
+  if(!wktDates.length)return false;
+  const lastDate=wktDates[wktDates.length-1];
+  const diffDays=Math.round((new Date(today+'T00:00')-new Date(lastDate+'T00:00'))/86400000);
+  return diffDays>=3; // 2+ missed days (gap of 3 means 2 days with no workout)
 }
 
 // Check overall performance vs previous for a day's exercises
@@ -1115,10 +1143,11 @@ function getDayPerfCategory(dayNum, prs){
 }
 
 // Master message picker — priority order per spec
+// 1:fullCycle 2:returning 3:minimum 4:weightUp 5:repsUp 6:matched 7:dropped 8:generic
 function getCelebMsg(dayNum, prs, isFullCycle, completionType){
-  if(completionType==='minimum') return randNR(CELEB_MSGS.minimum,'minimum');
   if(isFullCycle) return randNR(CELEB_MSGS.fullCycle,'fullCycle');
   if(isReturningAfterBreak()) return randNR(CELEB_MSGS.returning,'returning');
+  if(completionType==='minimum') return randNR(CELEB_MSGS.minimum,'minimum');
   const cat=getDayPerfCategory(dayNum, prs);
   if(cat==='up_weight') return randNR(CELEB_MSGS.weightUp,'weightUp');
   if(cat==='up_reps') return randNR(CELEB_MSGS.repsUp,'repsUp');
@@ -1179,13 +1208,13 @@ let dayModes={};
 const REST_CAT={
   // Heavy standalone compounds: 75–90s
   d1_rdl:'long',d2_row1:'long',d4_press:'long',d5_gm:'long',d6_arnold:'long',
-  // Unilateral lower-body: 60–75s (after both sides)
-  d1_bss:'medium',d1_slrdl:'medium',d3_bss:'medium',d3_step:'medium',
-  // Day 5 Block B hard superset: 75–90s
-  d5_step:'long',d5_rdl:'long',
+  // Unilateral / compound lower-body: 60–75s
+  d1_bss:'medium',d1_slrdl:'medium',d3_bss:'medium',d3_ssq:'medium',
+  // Day 5 Block B hard superset: 60–75s
+  d5_thrust:'medium',d5_rdl:'long',
   // Non-competing supersets / isolation: 45–60s
   d1_lat:'short',d1_tib:'short',
-  d2_bpa:'short',d2_lat2:'short',d2_calf:'short',d2_csrow:'short',
+  d2_bpa:'short',d2_lat2:'short',d2_calf:'short',d2_bench:'short',
   d3_lat3:'short',d3_hesq:'short',
   d4_row:'short',d4_ab:'short',d4_inc:'short',d4_tib:'short',
   d5_sumo:'short',d5_calf:'short',
@@ -1257,13 +1286,13 @@ const PROGRAM=[
   ]},
   {day:2,short:'Back',name:'Back + Delts + Calves',note:'Pull and brace. Control the weight on every rep.',blocks:[
     {label:'A',type:'s', exercises:[{id:'d2_row1', name:'DB One-Arm Row',                   sets:'3 × 8–12/side',      ns:3,rMin:8, rMax:12}]},
-    {label:'B',type:'ss',exercises:[{id:'d2_calf', name:'Standing DB Calf Raises',          sets:'2 × 12–15',          ns:2,rMin:12,rMax:15},{id:'d2_bpa',  name:'Band Pull-Aparts',        sets:'2 × 10–12',    ns:2,rMin:10,rMax:12,bw:true}]},
-    {label:'C',type:'ss',exercises:[{id:'d2_csrow',name:'Chest-Supported DB Row',           sets:'2 × 10–12',          ns:2,rMin:10,rMax:12},{id:'d2_lat2', name:'Lateral Raise',           sets:'2 × 12–15',    ns:2,rMin:12,rMax:15}]},
+    {label:'B',type:'ss',exercises:[{id:'d2_calf', name:'Standing DB Calf Raises',          sets:'2 × 12–15',          ns:2,rMin:12,rMax:15},{id:'d2_lat2', name:'Lateral Raise',           sets:'2 × 12–15',    ns:2,rMin:12,rMax:15}]},
+    {label:'C',type:'ss',exercises:[{id:'d2_bench',name:'DB Bench Press',                   sets:'2 × 10–12',          ns:2,rMin:10,rMax:12},{id:'d2_bpa',  name:'Band Pull-Aparts',       sets:'2 × 10–12',    ns:2,rMin:10,rMax:12,bw:true}]},
   ]},
   {day:3,short:'Quads',name:'Quad Focus',note:'Upright torso loads the quads. Feel the burn.',blocks:[
     {label:'A',type:'s', exercises:[{id:'d3_bss',  name:'Bulgarian Split Squat, Upright / Quad Bias',sets:'3 × 8–10/leg',       ns:3,rMin:8, rMax:10}]},
-    {label:'B',type:'ss',exercises:[{id:'d3_step', name:'Step-Ups',                         sets:'3 × 8–10/leg',       ns:3,rMin:8, rMax:10},{id:'d3_lat3', name:'Lateral Raise',           sets:'3 × 12–15',    ns:3,rMin:12,rMax:15}]},
-    {label:'C',type:'f', exercises:[{id:'d3_hesq', name:'Heel-Elevated DB Squat',           sets:'2 × 10–12',          ns:2,rMin:10,rMax:12}]},
+    {label:'B',type:'ss',exercises:[{id:'d3_ssq',  name:'Spanish Squat with Band',          sets:'3 × 10–15',          ns:3,rMin:10,rMax:15},{id:'d3_lat3', name:'Lateral Raise',           sets:'3 × 12–15',    ns:3,rMin:12,rMax:15}]},
+    {label:'C',type:'f', exercises:[{id:'d3_hesq', name:'Heel-Elevated DB Squat',           sets:'3 × 10–12',          ns:3,rMin:10,rMax:12}]},
   ]},
   {day:4,short:'Upper',name:'Upper: Back + Chest + Shoulders',note:'Press, pull, core. Full upper-body day.',blocks:[
     {label:'A',type:'s', exercises:[{id:'d4_press',name:'DB Shoulder Press',                sets:'3 × 8–12',           ns:3,rMin:8, rMax:12}]},
@@ -1272,7 +1301,7 @@ const PROGRAM=[
   ]},
   {day:5,short:'Hams',name:'Posterior Chain / Hamstring Correction',note:'Hardest lower-body day. Take full rest between sets.',blocks:[
     {label:'A',type:'s', exercises:[{id:'d5_gm',   name:'DB Good Morning',                  sets:'3 × 10–12',          ns:3,rMin:10,rMax:12}]},
-    {label:'B',type:'ss',exercises:[{id:'d5_step', name:'Step-Ups, Glute Bias / High Box', sets:'2 × 8–10/leg',       ns:2,rMin:8, rMax:10},{id:'d5_rdl',  name:'DB Romanian Deadlift',    sets:'2 × 8–10',     ns:2,rMin:8, rMax:10}]},
+    {label:'B',type:'ss',exercises:[{id:'d5_thrust',name:'Hip Thrusts / Glute Bridges',    sets:'2 × 10–15',          ns:2,rMin:10,rMax:15},{id:'d5_rdl',  name:'DB Romanian Deadlift',    sets:'2 × 8–10',     ns:2,rMin:8, rMax:10}]},
     {label:'C',type:'ss',exercises:[{id:'d5_sumo', name:'Sumo DB Squat',                    sets:'2 × 10–12',          ns:2,rMin:10,rMax:12},{id:'d5_calf', name:'Standing DB Calf Raises', sets:'2 × 12–15',    ns:2,rMin:12,rMax:15}]},
   ]},
   {day:6,short:'Arms',name:'Back + Chest + Arms/Shoulders',note:'Finish the week strong. Push, pull, and squeeze.',blocks:[
@@ -1296,7 +1325,7 @@ const MIN_PROGRAM=[
   ]},
   {day:3,exercises:[
     {id:'d3_bss',  name:'Bulgarian Split Squat, Upright / Quad Bias', sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
-    {id:'d3_step', name:'Step-Ups',                          sets:'2 × 8–10/leg', ns:2,rMin:8, rMax:10},
+    {id:'d3_ssq',  name:'Spanish Squat with Band',           sets:'2 × 10–15',   ns:2,rMin:10,rMax:15},
   ]},
   {day:4,exercises:[
     {id:'d4_press',name:'DB Shoulder Press',                 sets:'2 × 8–12',     ns:2,rMin:8, rMax:12},
@@ -1330,15 +1359,15 @@ const GROUPS={
   'd1_slrdl':     {name:'Single-Leg RDL',            ids:['d1_slrdl'], bw:false},
   'd2_row1':      {name:'One-Arm Row',               ids:['d2_row1'],  bw:false},
   'd2_bpa':       {name:'Band Pull-Aparts',          ids:['d2_bpa'],   bw:true},
-  'd2_csrow':     {name:'Chest-Supported Row',       ids:['d2_csrow'], bw:false},
+  'd2_bench':     {name:'DB Bench Press',            ids:['d2_bench'], bw:false},
   'd3_bss':       {name:'Split Squat, Quad Bias',         ids:['d3_bss'],   bw:false},
-  'd3_step':      {name:'Step-Ups',                  ids:['d3_step'],  bw:false},
+  'd3_ssq':       {name:'Spanish Squat with Band',   ids:['d3_ssq'],   bw:true},
   'd3_hesq':      {name:'Heel-Elevated Squat',       ids:['d3_hesq'],  bw:false},
   'd4_press':     {name:'Shoulder Press',             ids:['d4_press'], bw:false},
   'd4_ab':        {name:'Ab Work',                   ids:['d4_ab'],    bw:true},
   'd4_inc':       {name:'Incline DB Press',           ids:['d4_inc'],   bw:false},
   'd5_gm':        {name:'Good Morning',               ids:['d5_gm'],    bw:false},
-  'd5_step':      {name:'Step-Ups, Glute Bias / High Box',  ids:['d5_step'],  bw:false},
+  'd5_thrust':    {name:'Hip Thrusts / Glute Bridges',      ids:['d5_thrust'],bw:false},
   'd5_sumo':      {name:'Sumo Squat',                 ids:['d5_sumo'],  bw:false},
   'd6_arnold':    {name:'Arnold Press',               ids:['d6_arnold'],bw:false},
   'd6_ab':        {name:'Ab Work (D6)',               ids:['d6_ab'],    bw:true},
@@ -1352,10 +1381,10 @@ const GC={
   'rdl':          '#2D5016','lateral_raise': '#8B6914','db_row':        '#1A3A6A',
   'calf_raises':  '#1A5C3A','tib_raises':   '#2A8A5A',
   'd1_bss':       '#7A3020','d1_slrdl':     '#5A2070',
-  'd2_row1':      '#1A5A5A','d2_bpa':       '#7A5A1A','d2_csrow':     '#3A5A1A',
-  'd3_bss':       '#A05030','d3_step':      '#4A7C30','d3_hesq':      '#6A5A10',
+  'd2_row1':      '#1A5A5A','d2_bpa':       '#7A5A1A','d2_bench':     '#3A5A1A',
+  'd3_bss':       '#A05030','d3_ssq':       '#4A7C30','d3_hesq':      '#6A5A10',
   'd4_press':     '#8A1A50','d4_ab':        '#4A2A6A','d4_inc':       '#1A4A8A',
-  'd5_gm':        '#5A3A0A','d5_step':      '#3A6A28','d5_sumo':      '#3A1A5A',
+  'd5_gm':        '#5A3A0A','d5_thrust':    '#3A6A28','d5_sumo':      '#3A1A5A',
   'd6_arnold':    '#7A1A1A','d6_ab':        '#3A2A5A','d6_pu':        '#1A6A4A','d6_hc':'#5A6A0A',
 };
 function hexAlpha(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
@@ -1363,15 +1392,15 @@ function hexAlpha(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slic
 // ─── MUSCLE GROUP FILTERS ────────────────────────────────────────────────────
 const FILTERS={
   'All':       Object.keys(GROUPS),
-  'Glutes':    ['rdl','d1_bss','d1_slrdl','d3_bss','d5_step','d5_sumo'],
+  'Glutes':    ['rdl','d1_bss','d1_slrdl','d3_bss','d5_thrust','d5_sumo'],
   'Hamstrings':['rdl','d1_slrdl','d5_gm'],
-  'Quads':     ['d3_bss','d3_step','d3_hesq','d5_sumo'],
-  'Back':      ['d2_row1','d2_csrow','db_row'],
+  'Quads':     ['d3_bss','d3_ssq','d3_hesq','d5_sumo'],
+  'Back':      ['d2_row1','db_row'],
   'Shoulders': ['lateral_raise','d4_press','d6_arnold','d2_bpa'],
   'Push':      ['d4_press','d4_inc','d6_arnold','d6_pu'],
-  'Pull':      ['d2_row1','d2_csrow','db_row','lateral_raise','d2_bpa'],
-  'Upper':     ['lateral_raise','d2_row1','d2_bpa','d2_csrow','d4_press','d4_row','d4_ab','d4_inc','d6_arnold','d6_row','d6_ab','d6_pu','d6_hc'],
-  'Lower':     ['rdl','d1_bss','d1_slrdl','tib_raises','calf_raises','d3_bss','d3_step','d3_hesq','d5_gm','d5_step','d5_sumo'],
+  'Pull':      ['d2_row1','db_row','lateral_raise','d2_bpa'],
+  'Upper':     ['lateral_raise','d2_row1','d2_bpa','d2_bench','d4_press','d4_row','d4_ab','d4_inc','d6_arnold','d6_row','d6_ab','d6_pu','d6_hc'],
+  'Lower':     ['rdl','d1_bss','d1_slrdl','tib_raises','calf_raises','d3_bss','d3_step','d3_hesq','d5_gm','d5_thrust','d5_sumo'],
   'Arms':      ['d6_hc'],
   'Calves':    ['calf_raises','tib_raises'],
 };
@@ -1386,10 +1415,10 @@ const INFO={
   d2_row1:{muscles:'Lats, rhomboids, lower traps, rear delts, biceps',cues:['Elbow drives back and up along ribcage','At top: elbow behind body','Squeeze lats at top','Full stretch at bottom'],mistakes:['Rotating torso too much','Pulling with biceps','Short range'],effort:'1–2 RIR.',safety:'Neutral spine.',grip:'Neutral grip.',prog:'Hit 12 each side? Add 5 lb.'},
   d2_calf:{muscles:'Gastrocnemius, soleus',cues:['Full range — deep stretch at bottom','Pause at the top','Controlled slow descent'],mistakes:['Bouncing at bottom','Short range','Too fast'],effort:'Close to failure.',safety:'Slow tempo protects Achilles.',grip:'DBs at sides.',prog:'Hit 15 easily? Use a step.'},
   d2_rdf1:{muscles:'Rear deltoids, rhomboids, mid-traps',cues:['Bent over, chest near thighs','Arms open like wings','Lead with elbows','Squeeze shoulder blades at top'],mistakes:['Standing too upright','Shrugging traps','Momentum'],effort:'Close to failure.',safety:'Light weight.',grip:'Neutral.',prog:'Hit 15? Add 2 lb.'},
-  d2_csrow:{muscles:'Mid-back, lats, rhomboids',cues:['Chest flat on incline bench','Row elbows back and slightly out','Full stretch at bottom','Squeeze hard at top'],mistakes:['Lifting chest off pad','Short range'],effort:'1–2 RIR.',safety:'Great when lower back is fatigued.',grip:'Neutral preferred.',prog:'Hit 12? Add 5 lb.'},
+  d2_bench:{muscles:'Chest, front delts, triceps',cues:['Lower DBs to mid-chest','Elbows at 45° from body','Full stretch at bottom','Press to straight arms'],mistakes:['Flaring elbows wide','Bouncing weight','Short range of motion'],effort:'1–2 RIR.',safety:'Control descent. Use a spotter or drop position if needed.',grip:'Overhand.',prog:'Hit 12 clean? Add 2–5 lb.'},
   d2_lat2:{muscles:'Lateral deltoids',cues:['Lead with elbows','Stop at shoulder height','Control descent'],mistakes:['Traps shrugging','Momentum'],effort:'Close to failure.',safety:'Light weight.',grip:'Neutral.',prog:'Hit 15? Add 2 lb.'},
   d3_bss:{muscles:'Quads (primary with upright torso), glutes',cues:['Keep torso upright — shifts load to quads','Front knee tracks over toes','Lower slowly 2–3 seconds'],mistakes:['Leaning forward too much','Knee caving in','Too fast'],effort:'1–2 RIR.',safety:'Keep front knee tracking.',grip:'DBs at sides.',prog:'Hit 10 each leg? Add 2–5 lb.'},
-  d3_step:{muscles:'Glutes, quads, hamstrings',cues:['Place full foot on surface','Drive through working heel','Do not push off trailing foot','Step down with control'],mistakes:['Using floor foot to assist','Leaning too far forward'],effort:'1–2 RIR.',safety:'Stable box only.',grip:'DBs at sides.',prog:'Hit 10 each leg? Add weight or height.'},
+  d3_ssq:{muscles:'Quads (VMO), patellar tendon, hip flexors',cues:['Band around stable anchor at shin height','Sit back into squat with upright torso','Knees track over toes','Slow controlled descent and drive up through quads'],mistakes:['Letting knees cave','Leaning too far forward','Using momentum'],effort:'2–3 RIR. Good quad burn.',safety:'Band anchored to something solid. Keep feet flat.',prog:'Add reps first, then use a stronger resistance band.'},
   d3_rdf:{muscles:'Rear delts, rhomboids, mid-traps',cues:['Bent over, arms open wide','Lead with elbows','Squeeze at top'],mistakes:['Shrugging traps','Momentum'],effort:'Close to failure.',safety:'Light weight.',grip:'Neutral.',prog:'Hit 15? Add 2 lb.'},
   d3_hesq:{muscles:'Quads (elevated heels = strong quad bias), glutes',cues:['Heels elevated 1–2 inches','DBs at sides','Knees travel forward — that is the point','Full depth'],mistakes:['Elevation slipping','Knees caving in'],effort:'1–2 RIR.',safety:'Stable elevation essential.',grip:'DBs at sides.',prog:'Hit 12? Add 5 lb.'},
   d4_press:{muscles:'Front deltoids, side delts, upper chest, triceps',cues:['Start at shoulder height, elbows at 45°','Press straight up','Lower with control'],mistakes:['Arching back','Elbows flaring wide','Rushing'],effort:'1–2 RIR.',safety:'Seated is safer for lower back.',grip:'Neutral or pronated.',prog:'Hit 12? Add 5 lb.'},
@@ -1398,7 +1427,7 @@ const INFO={
   d4_inc:{muscles:'Upper chest, front delts, triceps',cues:['30–45° incline — not too steep','Elbows at ~45°','Lower until chest stretch'],mistakes:['Bench too steep','Elbows flaring wide'],effort:'1–2 RIR.',safety:'Do not go below comfortable depth.',grip:'Neutral or slight angle.',prog:'Hit 12? Add 5 lb.'},
   d4_tib:{muscles:'Tibialis anterior',cues:['Heels on floor','Flex foot up toward shin fully','Brief pause','Controlled return'],mistakes:['Too fast','Incomplete range'],effort:'Close to failure.',safety:'Ankle health — worth doing every week.',grip:'Bodyweight.',prog:'Hit 20? Add a plate.'},
   d5_gm:{muscles:'Hamstrings, glutes, spinal erectors',cues:['Hold DBs at shoulders','Hinge at hips — soft knee bend','Lower until near-parallel or full stretch','Drive hips forward to stand'],mistakes:['Rounding lower back','Bending knees too much','Going too heavy'],effort:'2 RIR. Form is everything.',safety:'Conservative weight always.',grip:'DBs at shoulders.',prog:'Hit 12 with perfect form? Add 5 lb.'},
-  d5_step:{muscles:'Glutes (higher box = more glute), hamstrings',cues:['Use higher box if available','Lean slightly forward for more glute','Drive through working heel','No back foot assistance'],mistakes:['Back leg assisting','Rushing'],effort:'1–2 RIR.',safety:'Stable box only.',grip:'DBs at sides.',prog:'Hit 10 each leg? Add weight.'},
+  d5_thrust:{muscles:'Glutes (primary), hamstrings',cues:['Upper back on bench or floor','Feet flat, drive hips up with glutes','Squeeze hard and hold 1 sec at top','Lower with control — do not drop'],mistakes:['Hyperextending lower back at top','Not reaching full hip extension','Pushing through quads instead of glutes'],effort:'1–2 RIR.',safety:'Upper back support must be stable.',grip:'DBs across hips.',prog:'Hit 15 comfortably? Add weight or a resistance band.'},
   d5_rdl:{muscles:'Hamstrings (primary), glutes',cues:['Hinge at hips, weights close','Full hamstring stretch at bottom','Drive hips forward to stand'],mistakes:['Squatting instead of hinging','Rounding back'],effort:'1–2 RIR.',safety:'Neutral lower back always.',grip:'Double overhand.',prog:'Hit 10? Add 5 lb.'},
   d5_sumo:{muscles:'Glutes, inner thighs (adductors), quads',cues:['Wide stance, toes turned out 30–45°','Hold one DB vertically between legs','Push knees out throughout','Full depth, squeeze glutes at top'],mistakes:['Knees caving in','Stance too narrow'],effort:'1–2 RIR.',safety:'Push knees outward the entire rep.',grip:'Both hands on one vertical DB.',prog:'Hit 12? Add 5–10 lb.'},
   d5_calf:{muscles:'Gastrocnemius, soleus',cues:['Full range — stretch at bottom','Pause at top','Slow descent'],mistakes:['Bouncing','Short range'],effort:'Close to failure.',safety:'Slow tempo protects Achilles.',grip:'DBs at sides.',prog:'Hit 15? Add weight or use a step.'},
@@ -1420,6 +1449,20 @@ const SK='form_v6';
 function gd(){try{return JSON.parse(localStorage.getItem(SK)||'{}')}catch{return{}}}
 function sd(d){localStorage.setItem(SK,JSON.stringify(d))}
 function todayStr(){return new Date().toISOString().split('T')[0]}
+// ── Persistent exercise notes ─────────────────────────────────────────────
+// Saved per exercise group key (synced exercises share the same note)
+// Different variations have separate note keys
+function getNoteKey(exerciseId){return ID2G[exerciseId]||exerciseId;}
+function getPersistentNote(exerciseId){
+  return((gd().exerciseNotes)||{})[getNoteKey(exerciseId)]||'';
+}
+function savePersistentNote(exerciseId,value){
+  const data=gd();
+  if(!data.exerciseNotes)data.exerciseNotes={};
+  data.exerciseNotes[getNoteKey(exerciseId)]=value;
+  sd(data);
+}
+
 function weekKey(date){const d=date?new Date(date):new Date();const wd=d.getDay(),diff=d.getDate()-wd+(wd===0?-6:1);const m=new Date(d);m.setDate(diff);return m.toISOString().split('T')[0];}
 
 function getGroupEntries(gk,excludeTodayForId){
@@ -1635,6 +1678,7 @@ function startRestTimer(id){
       clearInterval(_timerInterval);_timerInterval=null;_timerActiveId=null;
       if(btn){btn.textContent='✓ Done';btn.className='rest-btn rest-done';}
       playRestChime();
+      showTimerFlash();
       setTimeout(()=>{if(btn){btn.textContent=info.label;btn.className='rest-btn';}},2000);
     }
   },1000);
@@ -1651,6 +1695,12 @@ function playRestChime(){
       o.start(st);o.stop(st+0.52);
     });
   }catch(e){}
+}
+function showTimerFlash(){
+  document.getElementById('timer-flash-overlay')?.classList.add('active');
+}
+function stopTimerFlash(){
+  document.getElementById('timer-flash-overlay')?.classList.remove('active');
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -2096,10 +2146,7 @@ function toggleTheme(){
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  PHOTO STORAGE (localStorage, no file size impact)
-// ════════════════════════════════════════════════════════════════════════════
-// ════════════════════════════════════════════════════════════════════════════
-//  PHOTO STORAGE — IndexedDB (replaces localStorage base64 approach)
+//  PHOTO STORAGE — IndexedDB (compressed blobs, not base64 localStorage)
 // ════════════════════════════════════════════════════════════════════════════
 
 const _PHOTO_DB='form_photo_db',_PHOTO_STORE='photos';
@@ -2877,7 +2924,7 @@ function mkExCard(ex){
   const isBW=!!ex.bw,prev=getPrev(ex.id),te=getTodayE(ex.id);
   const wv=te&&te.weight!==null?te.weight:(!isBW&&prev&&prev.weight!==null?prev.weight:'');
   const rv=te&&te.reps!==null?te.reps:(prev&&prev.reps!==null?prev.reps:'');
-  const nv=te?te.note:'';
+  const nv=getPersistentNote(ex.id); // persistent cross-session note
   const wPre=(!te||te.weight===null)&&wv!=='', rPre=(!te||te.reps===null)&&rv!=='';
   const hint=getHint(ex.id,ex.rMax);
   const bwB=isBW?`<span class="bw-badge">Bodyweight</span>`:'';
@@ -2944,11 +2991,22 @@ function buildWorkout(){
     const isMin=mode==='minimum';
     const todayPill=isT?`<span class="today-pill">Today</span>`:'';
     const savedNote=getSessionNote(day.day);
+    const dayNoteHints={
+      1:'Put it down here, leave it here, and let\'s focus on the workout.',
+      2:'Put it down here, leave it behind, and let\'s lock in.',
+      3:'Write it here, let it go, and give the workout your focus.',
+      4:'Whatever\'s on your mind, put it here first, then let\'s get to work.',
+      5:'You can leave the stress here and bring your focus into the workout.',
+      6:'Drop the noise here for a minute. The only job now is the next set.',
+    };
+    const noteHint=dayNoteHints[day.day]||'Put it down here and let\'s get to work.';
 
     let html=`<div class="day-meta"><h2>${day.name}${todayPill}</h2><p>${day.note}</p></div>
     <div class="session-notes-wrap">
+      <div class="snote-label">How are you feeling today?</div>
+      <div class="snote-hint">${noteHint}</div>
       <textarea class="session-notes-field" id="snote-${day.day}"
-        placeholder="How are you feeling today? Anything worth noting..."
+        placeholder="Optional — write anything here..."
         rows="1" onchange="saveSessionNote(${day.day},this.value)">${savedNote}</textarea>
     </div>`;
 
@@ -2999,6 +3057,7 @@ function onChg(id,ns,rMax,isBW){
   const w=isBW?null:(document.getElementById(`w-${id}`)?.value??'');
   const r=document.getElementById(`r-${id}`)?.value??'';
   const n=document.getElementById(`n-${id}`)?.value??'';
+  if(n)savePersistentNote(id,n); // persist note across sessions
   const te=getTodayE(id);
   saveEntry(id,w,r,n,te?te.completed:false,ns);
   ['w-','r-'].forEach(p=>{const el=document.getElementById(`${p}${id}`);if(el)el.classList.remove('prefilled');});
@@ -3105,14 +3164,16 @@ function completeDay(dayNum,event,completionType,dateOpt){
       t.className='day-tab'+(a?' active':'')+((!was)?(isMin?' min-done':' completed'):'')+(tt?' today-tab':'');
     }
   });
-  updateDash();
   if(!was){
     const _oldStreak=calculateCurrentStreak();
     const prs=getDayPRs(dayNum);
     updateStreakOnComplete(todayStr(),completionType,dayNum,prs.length>0);
     const _newStreak=calculateCurrentStreak();
+    updateDash(); // after streak update so dashboard shows correct streak number
     checkAndShowTierUp(_oldStreak,_newStreak);
     celebrate(event,dayNum,prs,completionType);
+  } else {
+    updateDash(); // un-completing — no streak change, just refresh UI
   }
 }
 
@@ -3601,6 +3662,11 @@ if('serviceWorker' in navigator){
     <div class="tier-up-tagline">The streak grows stronger.</div>
     <button class="tier-up-close" onclick="closeTierUp()">Keep going 🌿</button>
   </div>
+</div>
+
+<!-- TIMER FLASH SCREEN -->
+<div id="timer-flash-overlay" onclick="stopTimerFlash()">
+  <div class="timer-flash-text">GO P GO</div>
 </div>
 
 </body>
