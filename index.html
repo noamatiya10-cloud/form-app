@@ -701,6 +701,31 @@ body.dark .reward-locked{background:#1A1A18;border-color:rgba(255,255,255,0.1);}
 .chest-olympic-glow{box-shadow:0 0 40px 18px rgba(184,146,10,0.50)!important;}
 @keyframes olympicPulse{0%,100%{box-shadow:0 0 32px 14px rgba(184,146,10,0.40);}50%{box-shadow:0 0 52px 24px rgba(184,146,10,0.70);}}
 .chest-olympic-glow{animation:olympicPulse 1.4s ease-in-out infinite!important;}
+
+/* ── LOCKED WORKOUT STATE ── */
+.ex-card.locked .ifield,.ex-card.locked .nfield{
+  background:var(--ivory2);color:var(--ink3);pointer-events:none;
+  opacity:0.72;cursor:default;
+}
+.ex-card.locked .rest-btn{pointer-events:none;opacity:0.5;}
+.workout-lock-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 16px;background:var(--ivory2);border-radius:var(--r);
+  border:1.5px solid var(--border2);margin:0 16px 4px;
+}
+.wl-status{font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:6px;}
+.wl-unlock-btn{font-size:12px;color:var(--olive);background:none;border:1px solid var(--olive4);
+  border-radius:20px;padding:5px 12px;cursor:pointer;font-family:'Outfit',sans-serif;
+  white-space:nowrap;flex-shrink:0;}
+.complete-btn.editing-btn{
+  background:linear-gradient(135deg,var(--gold4),var(--gold5));
+  color:var(--gold);border:1.5px solid var(--gold2);
+}
+
+/* ── FULL-CYCLE BONUS SECOND CHEST ── */
+.chest-cycle-divider{margin-top:14px;padding-top:14px;border-top:1.5px solid var(--border2);}
+.cycle-bonus-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;text-align:center;}
 /* ── SETTINGS ── */
 .settings-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
 .settings-item{display:flex;align-items:flex-start;padding:16px;border-bottom:1px solid var(--border);}
@@ -1569,7 +1594,7 @@ const INFO={
 const SK='form_v6';
 function gd(){try{return JSON.parse(localStorage.getItem(SK)||'{}')}catch{return{}}}
 function sd(d){localStorage.setItem(SK,JSON.stringify(d))}
-function todayStr(){return new Date().toISOString().split('T')[0]}
+function todayStr(){const _d=new Date();return _d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');}
 // ── Persistent exercise notes ─────────────────────────────────────────────
 // Saved per exercise group key (synced exercises share the same note)
 // Different variations have separate note keys
@@ -1584,14 +1609,14 @@ function savePersistentNote(exerciseId,value){
   sd(data);
 }
 
-function weekKey(date){const d=date?new Date(date):new Date();const wd=d.getDay(),diff=d.getDate()-wd+(wd===0?-6:1);const m=new Date(d);m.setDate(diff);return m.toISOString().split('T')[0];}
+function weekKey(date){const d=date?new Date(date+'T00:00'):new Date();const wd=d.getDay(),diff=wd===0?-6:1-wd;const m=new Date(d.getFullYear(),d.getMonth(),d.getDate()+diff);return m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0')+'-'+String(m.getDate()).padStart(2,'0');}
 
 function getGroupEntries(gk,excludeTodayForId){
   const data=gd(),history=data.history||{},group=GROUPS[gk];
   let all=[];
   group.ids.forEach(id=>{
     (history[id]||[]).forEach(e=>{
-      if(id===excludeTodayForId&&e.date===todayStr())return;
+      if(id===excludeTodayForId&&e.date===getWorkoutDateForDay(ID2DAY[id]))return;
       // Use scheduledDate so the chart shows the day the workout was *for*,
       // not the day she happened to type the numbers in
       const sDate=scheduledDate(id,e.date);
@@ -1608,12 +1633,13 @@ function getPrev(id){
   const entries=getGroupEntries(ID2G[id],id);
   return entries.length?entries[entries.length-1]:null;
 }
-function getTodayE(id){const h=(gd().history||{})[id];return h?(h.find(e=>e.date===todayStr())||null):null;}
+function getTodayE(id){const _wDate=getWorkoutDateForDay(ID2DAY[id]);const h=(gd().history||{})[id];return h?(h.find(e=>e.date===_wDate)||null):null;}
 
 function saveEntry(id,weight,reps,note,completed,ns){
   const data=gd();if(!data.history)data.history={};if(!data.history[id])data.history[id]=[];
-  const entry={date:todayStr(),weight:(weight===''||weight===null)?null:parseFloat(weight),reps:(reps===''||reps===null)?null:parseInt(reps),note:note||'',completed:!!completed,ns};
-  const idx=data.history[id].findIndex(e=>e.date===todayStr());
+  const _wDate=getWorkoutDateForDay(ID2DAY[id]); // midnight-safe date
+  const entry={date:_wDate,weight:(weight===''||weight===null)?null:parseFloat(weight),reps:(reps===''||reps===null)?null:parseInt(reps),note:note||'',completed:!!completed,ns};
+  const idx=data.history[id].findIndex(e=>e.date===_wDate);
   if(idx>=0)data.history[id][idx]=entry;else data.history[id].push(entry);
   sd(data);
 }
@@ -1731,16 +1757,7 @@ function startNewCycle(){
 }
 
 // ─── HINTS ───────────────────────────────────────────────────────────────────
-function getHint(id,rMax){
-  const prev=getPrev(id),te=getTodayE(id);
-  if(!te||!prev)return'';
-  const{weight:tw,reps:tr}=te,{weight:pw,reps:pr}=prev;
-  if(tw!==null&&pw!==null&&tw>pw)return`↑ Weight up: ${pw} → ${tw} lb`;
-  if(tw===pw&&tr!==null&&pr!==null&&tr>pr)return`↑ Reps up: ${pr} → ${tr}`;
-  if(tw===pw&&tr!==null&&tr>=rMax)return`Hit the top of the range — try adding weight next time`;
-  if(tr!==null&&pr!==null&&tr<pr)return`Reps dropped — keep this weight and build back`;
-  return'';
-}
+// getHint defined below (uses structured return)
 function getHint(id,rMax){
   const prev=getPrev(id),te=getTodayE(id);
   if(!te||!prev)return null;
@@ -1827,34 +1844,41 @@ function stopTimerFlash(){
 // ════════════════════════════════════════════════════════════════════════════
 //  PR DETECTION
 // ════════════════════════════════════════════════════════════════════════════
-function getBestHistorical(id){
-  const gk=ID2G[id];
-  const prev=getGroupEntries(gk,null).filter(e=>e.date!==todayStr());
-  if(!prev.length)return null;
-  let bW=0,bR=0;
-  prev.forEach(e=>{
-    if(e.weight!==null&&e.weight>bW)bW=e.weight;
-    if(e.reps!==null&&e.reps>bR)bR=e.reps;
-  });
-  return{weight:bW,reps:bR,entries:prev};
+function checkPR(id,weight,reps){
+  return _checkPRImpl(id,weight,reps,getWorkoutDateForDay(ID2DAY[id]));
 }
 
-function checkPR(id,weight,reps){
+// Date-aware PR check: compares against all entries strictly BEFORE excludeDate.
+// Used by shareWeek to detect PRs as-of the date they were logged.
+function checkPRForDate(id,weight,reps,logDate){
+  return _checkPRImpl(id,weight,reps,logDate);
+}
+
+function _checkPRImpl(id,weight,reps,excludeDate){
   const gk=ID2G[id];
-  const prev=getGroupEntries(gk,null).filter(e=>e.date!==todayStr());
+  const prev=getGroupEntries(gk,null).filter(e=>e.date!==excludeDate);
   if(!prev.length)return{any:false};
 
   // Weight PR: beats the heaviest weight ever used
   const bestWeight=prev.reduce((m,e)=>e.weight!==null?Math.max(m,e.weight):m,0);
   const wPR=weight!==null&&weight>0&&bestWeight>0&&weight>bestWeight;
 
-  // Rep PR: more reps than ever done at this exact weight (weight PR takes priority)
+  // Rep PR: two cases —
+  //   Weighted exercise: beats best reps at the exact same weight
+  //   Bodyweight exercise (weight===null): beats best reps ever (no weight to match)
   let rPR=false;
-  if(!wPR&&weight!==null&&reps!==null){
-    const atWeight=prev.filter(e=>e.weight===weight);
-    if(atWeight.length){
-      const bestRepsAtWeight=atWeight.reduce((m,e)=>e.reps!==null?Math.max(m,e.reps):m,0);
-      rPR=reps>0&&bestRepsAtWeight>0&&reps>bestRepsAtWeight;
+  if(!wPR&&reps!==null){
+    if(weight===null){
+      // Bodyweight: compare reps against all previous entries
+      const bestRepsEver=prev.reduce((m,e)=>e.reps!==null?Math.max(m,e.reps):m,0);
+      rPR=reps>0&&bestRepsEver>0&&reps>bestRepsEver;
+    } else {
+      // Weighted: compare reps at same weight only
+      const atWeight=prev.filter(e=>e.weight===weight);
+      if(atWeight.length){
+        const bestRepsAtWeight=atWeight.reduce((m,e)=>e.reps!==null?Math.max(m,e.reps):m,0);
+        rPR=reps>0&&bestRepsAtWeight>0&&reps>bestRepsAtWeight;
+      }
     }
   }
   return{weightPR:wPR,repsPR:rPR,any:wPR||rPR};
@@ -2129,30 +2153,27 @@ function renderOverviewChart(){
 // ════════════════════════════════════════════════════════════════════════════
 function shareWeek(){
   const now=new Date(), dow=now.getDay();
-  const mon=new Date(now);mon.setDate(now.getDate()-dow+(dow===0?-6:1));
-  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
   const fmtDate=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
 
-  // Week date strings (Sun–Sat)
+  // Build week dates (Mon–Sat) using local midnight to avoid UTC offset bugs
+  const _monMidnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()-(dow===0?6:dow-1));
+  const _localDs=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  // weekDates[0]=Sun, [1]=Mon...[6]=Sat; wktDates = Mon–Sat (slice 1..7)
   const weekDates=[];
-  for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()-1+i);weekDates.push(d.toISOString().split('T')[0]);}
-  // Mon–Sat only for workouts
-  const wktDates=weekDates.slice(0,6);
+  for(let i=0;i<7;i++){weekDates.push(_localDs(new Date(_monMidnight.getFullYear(),_monMidnight.getMonth(),_monMidnight.getDate()-1+i)));}
+  const wktDates=weekDates.slice(1); // Mon through Sat
+
+  const sun=new Date(_monMidnight.getFullYear(),_monMidnight.getMonth(),_monMidnight.getDate()+6);
 
   // Calendar entries for this week
   const cal=(gd().calendar)||{};
 
-  // Build day lines
+  // Build day lines — use calendar history only, not live cycle state
   const dayLines=PROGRAM.map(d=>{
-    const compType=getCompletionType(d.day);
     const calEntry=wktDates.map(date=>cal[date]).find(e=>e&&e.dayNum===d.day);
-    if(compType==='minimum'||(calEntry&&calEntry.type==='minimum')){
-      return`~ Day ${d.day} — ${d.name} (Minimum Version)`;
-    } else if(compType==='full'||(calEntry&&calEntry.type==='full')){
-      return`✓ Day ${d.day} — ${d.name}`;
-    } else {
-      return`○ Day ${d.day} — ${d.name}`;
-    }
+    if(calEntry?.type==='minimum') return`~ Day ${d.day} — ${d.name} (Minimum Version)`;
+    if(calEntry?.type==='full')    return`✓ Day ${d.day} — ${d.name}`;
+    return`○ Day ${d.day} — ${d.name}`;
   });
 
   // Check for auto rest days this week
@@ -2172,7 +2193,7 @@ function shareWeek(){
     const ex=exMap[id];if(!ex)return;
     entries.forEach(e=>{
       if(!wktDates.includes(e.date))return;
-      const pr=checkPR(id,e.weight,e.reps);
+      const pr=checkPRForDate(id,e.weight,e.reps,e.date); // compare as-of log date
       if(!pr.any)return;
       const parts=[];
       if(pr.weightPR)parts.push(`${e.weight} lb x ${e.reps}`);
@@ -2184,8 +2205,9 @@ function shareWeek(){
   // Stats
   const vol=getTotalVolumeByDate();
   const weekVol=wktDates.reduce((sum,k)=>sum+(vol[k]||0),0);
-  const streak=(gd().streak||{}).current||0;
-  const cnt=weekCnt();
+  const streak=calculateCurrentStreak();
+  // Count completions from this week's calendar, not current cycle state
+  const cnt=wktDates.filter(date=>cal[date]&&(cal[date].type==='full'||cal[date].type==='minimum')).length;
 
   // Build text
   const allLines=[
@@ -3289,6 +3311,19 @@ async function openChest(){
   if(!body)return;
   const tier=CHEST_TIERS[base.tier];
 
+  // Build optional second-chest HTML for full-cycle bonus
+  const _ct2=cycleBonus?CHEST_TIERS[cycleBonus.tier]:null;
+  const _cycleBonusHtml=cycleBonus?`
+    <div class="chest-cycle-divider" id="c-cycle-divider" style="display:none">
+      <div class="cycle-bonus-label">⬡ Full Cycle Bonus</div>
+      <div class="chest-emoji-wrap" id="c2-wrap">
+        <div class="chest-glow ${_ct2.glowCls}" id="c2-glow"></div>
+        <div class="chest-emoji chest-emoji-shake" id="c2-emoji">${_ct2.emoji}</div>
+      </div>
+      <div class="chest-tier-name" id="c2-name" style="display:none">${_ct2.name}</div>
+      <div class="chest-base-pts" id="c2-pts" style="display:none;color:${_ct2.ptColor}">+${cycleBonus.pts} ⚜️</div>
+    </div>`:'';
+
   body.innerHTML=`<div class="chest-phase">
     <div class="chest-emoji-wrap" id="c-wrap">
       <div class="chest-glow ${tier.glowCls}" id="c-glow"></div>
@@ -3297,6 +3332,7 @@ async function openChest(){
     <div class="chest-tier-name" id="c-name" style="display:none">${tier.name}</div>
     <div class="chest-base-pts" id="c-pts" style="display:none;color:${tier.ptColor}">+${base.pts} ⚜️</div>
     <div class="chest-bonuses" id="c-bonuses" style="display:none"></div>
+    ${_cycleBonusHtml}
     <div class="chest-total-wrap" id="c-total" style="display:none">
       <span class="chest-total-label">Total earned</span>
       <span class="chest-total-pts">+${totalPts} ⚜️</span>
@@ -3314,7 +3350,7 @@ async function openChest(){
 
   const reduced=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-  // Phase 1: shake (1.1s)
+  // Phase 1: main chest shake (1.1s)
   await _sleep(reduced?200:1100);
 
   // Phase 2: reveal tier + base pts + particles
@@ -3324,21 +3360,29 @@ async function openChest(){
   if(!reduced)_spawnPts('c-wrap');
   await _sleep(500);
 
-  // Phase 3: bonuses
+  // Phase 3: PR and streak bonus text lines (cycleBonus gets its own animation below)
   let bonusLines='';
   if(prBonus)bonusLines+=`<div class="chest-bonus-line">🏆 PR Bonus: +${prBonus} ⚜️</div>`;
   if(streakBonus)bonusLines+=`<div class="chest-bonus-line">🔥 ${streakBonus.streak}-Day Streak: +${streakBonus.pts} ⚜️</div>`;
-  if(cycleBonus){
-    const ct=CHEST_TIERS[cycleBonus.tier];
-    bonusLines+=`<div class="chest-bonus-line chest-cycle-line">⬡ Full Cycle — ${ct.name} ${ct.emoji}: +${cycleBonus.pts} ⚜️</div>`;
-  }
   if(bonusLines){
     document.getElementById('c-bonuses').innerHTML=bonusLines;
     _slideUp('c-bonuses');
     await _sleep(500);
   }
 
-  // Phase 4: total (only if there were bonuses)
+  // Phase 3.5: Full-cycle bonus — second animated chest
+  if(cycleBonus){
+    await _sleep(300);
+    _slideUp('c-cycle-divider'); // divider slides in, emoji starts shaking inside it
+    await _sleep(reduced?200:1100); // let the shake play
+    _slideUp('c2-name');
+    await _sleep(180);
+    _slideUp('c2-pts');
+    if(!reduced)_spawnPts('c2-wrap');
+    await _sleep(500);
+  }
+
+  // Phase 4: total (only if there were any bonuses at all)
   if(totalPts>base.pts){_slideUp('c-total');await _sleep(300);}
 
   // Phase 5: running total count-up
@@ -3369,6 +3413,55 @@ async function openChest(){
   // Refresh shop only if Settings tab is currently active
   if(document.getElementById('page-settings')?.classList.contains('active'))renderShop();
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+//  WORKOUT DATE (midnight-safe) + WORKOUT LOCK SYSTEM
+// ════════════════════════════════════════════════════════════════════════════
+
+// Returns the date this workout "belongs to" — usually today, but if started
+// before midnight and completed after, it stays on the start date.
+// Valid window: today or yesterday (covers the midnight-crossing scenario).
+function getWorkoutDateForDay(dayNum){
+  if(!dayNum)return todayStr();
+  const stored=((gd().workoutStartDates)||{})[dayNum];
+  const today=todayStr(),yest=getPrevDate(today);
+  if(stored===today||stored===yest)return stored;
+  return today;
+}
+
+// Call when the workout tab/day panel is first built — stamps the start date.
+// Only sets it if no valid stamp exists (doesn't overwrite a midnight-crossing date).
+function initWorkoutStartDate(dayNum){
+  if(!dayNum)return;
+  const today=todayStr(),yest=getPrevDate(today);
+  const stored=((gd().workoutStartDates)||{})[dayNum];
+  if(stored===today||stored===yest)return; // already have a valid stamp
+  const data=gd();
+  if(!data.workoutStartDates)data.workoutStartDates={};
+  data.workoutStartDates[dayNum]=today;
+  sd(data);
+}
+
+// ── Completed workout lock system ─────────────────────────────────────────
+// In-memory only — resets on page reload (intentional: prevents stale unlock).
+const _unlockedDays=new Set();
+
+function unlockWorkout(dayNum){
+  const ok=confirm(
+    "This workout is already completed.\n\n"+
+    "Editing it may update history, PRs, volume, and charts.\n\n"+
+    "Unlock to edit?"
+  );
+  if(!ok)return;
+  _unlockedDays.add(dayNum);
+  buildWorkout(); // rebuild with editable inputs
+}
+
+function saveEditedWorkout(dayNum){
+  _unlockedDays.delete(dayNum);
+  buildWorkout(); // rebuild with locked inputs
+  showToast("Workout updated ✓");
+}
 // ════════════════════════════════════════════════════════════════════════════
 //  BUILD WORKOUT UI
 // ════════════════════════════════════════════════════════════════════════════
@@ -3380,7 +3473,8 @@ function switchDayMode(dayNum, mode){
 }
 
 // ── Shared exercise card renderer (full & minimum both use this) ──────────────
-function mkExCard(ex){
+function mkExCard(ex,_dayNum){
+  const _locked=_dayNum&&isDone(_dayNum)&&!_unlockedDays.has(_dayNum);
   const isBW=!!ex.bw,prev=getPrev(ex.id),te=getTodayE(ex.id);
   const wv=te&&te.weight!==null?te.weight:(!isBW&&prev&&prev.weight!==null?prev.weight:'');
   const rv=te&&te.reps!==null?te.reps:(prev&&prev.reps!==null?prev.reps:'');
@@ -3391,25 +3485,26 @@ function mkExCard(ex){
   const restInfo=getRestInfo(ex.id);
   const existingPR=te?checkPR(ex.id,te.weight,te.reps):{any:false};
 
+  const _ro=_locked?'readonly=""':'';
   const inputs=isBW
     ?`<div class="ex-inputs one-col"><div class="ig"><label class="ilabel">Reps</label>
         <input type="number" class="ifield${rPre?' prefilled':''}" id="r-${ex.id}"
         placeholder="${prev&&prev.reps!==null?prev.reps+' reps':'— reps'}"
         value="${rv}" inputmode="numeric" min="0" pattern="[0-9]*"
-        onchange="onChg('${ex.id}',${ex.ns},${ex.rMax},true)"></div></div>`
+        ${_ro} onchange="onChg('${ex.id}',${ex.ns},${ex.rMax},true)"></div></div>`
     :`<div class="ex-inputs two-col">
         <div class="ig"><label class="ilabel">Weight (lb)</label>
         <input type="number" class="ifield${wPre?' prefilled':''}" id="w-${ex.id}"
         placeholder="${prev&&prev.weight!==null?prev.weight+' lb':'— lb'}"
         value="${wv}" inputmode="decimal" min="0" step="0.5"
-        onchange="onChg('${ex.id}',${ex.ns},${ex.rMax},false)"></div>
+        ${_ro} onchange="onChg('${ex.id}',${ex.ns},${ex.rMax},false)"></div>
         <div class="ig"><label class="ilabel">Reps</label>
         <input type="number" class="ifield${rPre?' prefilled':''}" id="r-${ex.id}"
         placeholder="${prev&&prev.reps!==null?prev.reps+' reps':'— reps'}"
         value="${rv}" inputmode="numeric" min="0" pattern="[0-9]*"
-        onchange="onChg('${ex.id}',${ex.ns},${ex.rMax},false)"></div></div>`;
+        ${_ro} onchange="onChg('${ex.id}',${ex.ns},${ex.rMax},false)"></div></div>`;
 
-  return `<div class="ex-card" id="card-${ex.id}">
+  return `<div class="ex-card${_locked?' locked':''}" id="card-${ex.id}">
     <div class="ex-top">
       <div class="ex-name-wrap">
         <div class="ex-name">${ex.name}${bwB}<span class="pr-badge${existingPR.any?' show':''}" id="pr-${ex.id}">✦ PR</span></div>
@@ -3420,7 +3515,7 @@ function mkExCard(ex){
       </button>
     </div>
     ${inputs}
-    <div class="note-area"><textarea class="nfield" id="n-${ex.id}" placeholder="Note (optional)..." rows="1" onchange="onChg('${ex.id}',${ex.ns},${ex.rMax},${isBW})">${nv}</textarea></div>
+    <div class="note-area"><textarea class="nfield" id="n-${ex.id}" placeholder="Note (optional)..." rows="1" ${_ro} onchange="onChg('${ex.id}',${ex.ns},${ex.rMax},${isBW})">${nv}</textarea></div>
     <div class="ex-footer"><div class="phint" id="hint-${ex.id}">${renderHintHTML(hint)}</div></div>
     <div class="rest-row">
       <span class="rest-label-text">${restInfo.tip}</span>
@@ -3431,6 +3526,10 @@ function mkExCard(ex){
 
 function buildWorkout(){
   const tabs=document.getElementById('day-tabs'),cont=document.getElementById('day-cont');
+  // Remember which day is active so a rebuild (after complete/unlock/save) stays on the same day
+  const _activePanels=document.querySelectorAll('.workout-day');
+  let _currentDayIdx=null;
+  _activePanels.forEach((p,i)=>{if(p.classList.contains('active'))_currentDayIdx=i;});
   tabs.innerHTML='';cont.innerHTML='';
   const sug=sugDay();
 
@@ -3447,6 +3546,7 @@ function buildWorkout(){
     const panel=document.createElement('div');
     panel.className='workout-day'+(di===0?' active':'');panel.id=`day-${di}`;
 
+    initWorkoutStartDate(day.day); // stamp workout start date for midnight-safe saves
     const mode=dayModes[day.day]||'full';
     const isMin=mode==='minimum';
     const todayPill=isT?`<span class="today-pill">Today</span>`:'';
@@ -3474,7 +3574,7 @@ function buildWorkout(){
       // Minimum mode: small banner at top + back option
       html+=`<div class="min-banner">🌿 Minimum version — keeping the habit alive.<button class="min-banner-back" onclick="switchDayMode(${day.day},'full')">Switch to full workout</button></div>`;
       const minExs=MIN_VERSION[day.day]||[];
-      minExs.forEach(ex=>{ html+=mkExCard(ex); });
+      minExs.forEach(ex=>{ html+=mkExCard(ex,day.day); });
     } else {
       // Full mode: tiny secondary pill in top-right corner only
       html+=`<div class="mode-min-wrap"><button class="mode-min-btn" onclick="switchDayMode(${day.day},'minimum')">Low energy day? Minimum version</button></div>`;
@@ -3487,26 +3587,37 @@ function buildWorkout(){
       day.blocks.forEach(block=>{
         const tl={s:'Main Lift',ss:'Superset',f:'Finisher'}[block.type]||'';
         html+=`<div class="block-header"><div class="block-badge">${block.label}</div><div class="block-title">${tl}</div>${block.type!=='s'?`<span class="ss-tag">${tl}</span>`:''}</div>`;
-        block.exercises.forEach(ex=>{ html+=mkExCard(ex); });
+        block.exercises.forEach(ex=>{ html+=mkExCard(ex,day.day); });
       });
     }
 
     const cardioDone=getCardio(day.day);
-    const completeBtnLabel=done
-      ?(isMinDone?'✓ Minimum Done':'✓ Day Complete')
-      :(isMin?'Complete Minimum Version':'Complete Day '+day.day);
-    const completeBtnClass='complete-btn'+(done?' done-state':'')+(isMin&&!done?' min-complete-btn':'');
-
     const _yestDone=(gd().calendar||{})[getPrevDate(todayStr())];
     const _showYest=!isDone(day.day)&&!_yestDone;
-    html+=`<div class="complete-wrap">
-      <button class="${completeBtnClass}" id="cbtn-${day.day}" onclick="completeDay(${day.day},event,'${isMin?'minimum':'full'}','today')">${completeBtnLabel}</button>
-      ${_showYest?`<button class="log-yest-btn" onclick="completeDay(${day.day},event,'${isMin?'minimum':'full'}','yesterday')">Did this yesterday? Log for yesterday</button>`:''}
-    </div>`;
+    // Tri-state complete button: locked / unlocked-editing / incomplete
+    if(done&&!_unlockedDays.has(day.day)){
+      html+=`<div class="complete-wrap">
+        <div class="workout-lock-bar">
+          <span class="wl-status">🔒 Workout complete</span>
+          <button class="wl-unlock-btn" onclick="unlockWorkout(${day.day})">Unlock to Edit</button>
+        </div></div>`;
+    } else if(done&&_unlockedDays.has(day.day)){
+      html+=`<div class="complete-wrap">
+        <button class="complete-btn editing-btn" onclick="saveEditedWorkout(${day.day})">Save Updated Workout ✓</button>
+      </div>`;
+    } else {
+      const completeBtnLabel=isMin?'Complete Minimum Version':'Complete Day '+day.day;
+      const completeBtnClass='complete-btn'+(isMin?' min-complete-btn':'');
+      html+=`<div class="complete-wrap">
+        <button class="${completeBtnClass}" id="cbtn-${day.day}" onclick="completeDay(${day.day},event,'${isMin?'minimum':'full'}','today')">${completeBtnLabel}</button>
+        ${_showYest?`<button class="log-yest-btn" onclick="completeDay(${day.day},event,'${isMin?'minimum':'full'}','yesterday')">Did this yesterday? Log for yesterday</button>`:''}
+      </div>`;
+    }
     panel.innerHTML=html;cont.appendChild(panel);
   });
 
-  if(sug!==null)switchDay(sug);
+  if(_currentDayIdx!==null)switchDay(_currentDayIdx);
+  else if(sug!==null)switchDay(sug);
   const sub=document.getElementById('wkt-sub');
   const dnames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const dow=new Date().getDay();
@@ -3517,7 +3628,7 @@ function onChg(id,ns,rMax,isBW){
   const w=isBW?null:(document.getElementById(`w-${id}`)?.value??'');
   const r=document.getElementById(`r-${id}`)?.value??'';
   const n=document.getElementById(`n-${id}`)?.value??'';
-  if(n)savePersistentNote(id,n); // persist note across sessions
+  savePersistentNote(id,n); // persist note across sessions (saves empty to allow deletion)
   const te=getTodayE(id);
   saveEntry(id,w,r,n,te?te.completed:false,ns);
   ['w-','r-'].forEach(p=>{const el=document.getElementById(`${p}${id}`);if(el)el.classList.remove('prefilled');});
@@ -3627,7 +3738,7 @@ function completeDay(dayNum,event,completionType,dateOpt){
   if(!was){
     const _oldStreak=calculateCurrentStreak();
     const prs=getDayPRs(dayNum);
-    updateStreakOnComplete(todayStr(),completionType,dayNum,prs.length>0);
+    updateStreakOnComplete(getWorkoutDateForDay(dayNum),completionType,dayNum,prs.length>0);
     const _newStreak=calculateCurrentStreak();
     updateDash(); // after streak update so dashboard shows correct streak number
     checkAndShowTierUp(_oldStreak,_newStreak);
@@ -3635,13 +3746,14 @@ function completeDay(dayNum,event,completionType,dateOpt){
     const _pd=gd();
     _pd.pendingChest={
       sessionId:Date.now().toString(36)+Math.random().toString(36).slice(2,5),
-      date:todayStr(),dayNum,completionType,
+      date:getWorkoutDateForDay(dayNum),dayNum,completionType,
       hasPrs:prs.length>0,
       isFullCycle:weekCnt()>=6,
       newStreak:_newStreak
     };
     sd(_pd);
     celebrate(event,dayNum,prs,completionType);
+    setTimeout(()=>buildWorkout(),350); // refresh to locked state
   } else {
     updateDash(); // un-completing — no streak change, just refresh UI
   }
